@@ -1,6 +1,5 @@
 ### oai-core-ebpf-deploy
-
-just run ```make``` for options
+go to [Core-NFs](https://github.com/evershalik/OAI-bpf-upf/tree/main/Core-NFs) directory and just run ```make``` for options
 ```
 make NFs
 make UERANSIM
@@ -32,8 +31,4 @@ config.yaml is used for all nfs. Change the interface name according to system c
 command to run all nfs. Just change nrf with other nfs name 
 ```
 sudo nrf -c config.yaml -o
-```
-to remove everything
-```
-make clean
 ```
