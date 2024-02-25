@@ -2,7 +2,7 @@
   <tr style="border-collapse: collapse; border: none;">
     <td style="border-collapse: collapse; border: none;">
       <a href="http://www.openairinterface.org/">
-         <img src="./images/oai_final_logo.png" alt="" border=3 height=50 width=150>
+         <img src="./docs/images/oai_final_logo.png" alt="" border=3 height=50 width=150>
          </img>
       </a>
     </td>
@@ -77,7 +77,7 @@ OAI-UPF-eBPF as a part of the OAI 5G mobile Core Network implements a data netwo
 
 <figure>
   <img
-    src="./images/5gcn_eBPF_upf.png"
+    src="./docs/images/5gcn_eBPF_upf.png"
     alt="This is the UPF architecture using the eBPF technology. The architecture is designed in two layers: user and kernel space layers"
     width="900"
     height="600" />
@@ -120,7 +120,7 @@ If such PDR is found, the packet passes to the Forwarder (i.e., FAR Program). Th
 ### i.  UPF Standalone Deployment
 <figure>
   <img
-    src="./images/5gcn_eBPF_testbed.png"
+    src="./docs/images/5gcn_eBPF_testbed.png"
     alt="This is the OAI 5GC architecture testbed. The architecture is designed in two layers: user and kernel space layers"
     width="900"
     height="400" />
@@ -1198,7 +1198,7 @@ If you replicate then your log files and pcap file will be present in `/tmp/oai/
 
 <figure>
   <img
-    src="./images/setup_networking.png"
+    src="./docs/images/setup_networking.png"
     alt="This is the OAI 5GC testbed."
     width="900"
     height="400" />
