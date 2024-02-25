@@ -8,15 +8,18 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/ue.cpp" "CMakeFiles/nr-ue.dir/src/ue.cpp.o" "gcc" "CMakeFiles/nr-ue.dir/src/ue.cpp.o.d"
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/ue.cpp" "CMakeFiles/nr-ue.dir/src/ue.cpp.o" "gcc" "CMakeFiles/nr-ue.dir/src/ue.cpp.o.d"
   )
 
-# Targets to which this target links which contain Fortran sources.
-set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
-  )
-
-# Targets to which this target links which contain Fortran sources.
-set(CMAKE_Fortran_TARGET_FORWARD_LINKED_INFO_FILES
+# Targets to which this target links.
+set(CMAKE_TARGET_LINKED_INFO_FILES
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/cmake-build-release/src/lib/CMakeFiles/common-lib.dir/DependInfo.cmake"
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/cmake-build-release/src/ue/CMakeFiles/ue.dir/DependInfo.cmake"
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/cmake-build-release/src/utils/CMakeFiles/utils.dir/DependInfo.cmake"
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/cmake-build-release/src/ext/CMakeFiles/ext.dir/DependInfo.cmake"
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/cmake-build-release/src/asn/ngap/CMakeFiles/asn-ngap.dir/DependInfo.cmake"
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/cmake-build-release/src/asn/rrc/CMakeFiles/asn-rrc.dir/DependInfo.cmake"
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/cmake-build-release/src/asn/asn1c/CMakeFiles/asn-asn1c.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

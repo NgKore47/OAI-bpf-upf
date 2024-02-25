@@ -1,9 +1,9 @@
 src/asn/asn1c/CMakeFiles/asn-asn1c.dir/INTEGER.c.o: \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/INTEGER.c \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/INTEGER.c \
  /usr/include/stdc-predef.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_internal.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_application.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_system.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_internal.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_application.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_system.h \
  /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -91,25 +91,25 @@ src/asn/asn1c/CMakeFiles/asn-asn1c.dir/INTEGER.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
  /usr/include/x86_64-linux-gnu/bits/socket2.h \
  /usr/include/x86_64-linux-gnu/bits/in.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_codecs.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/constr_TYPE.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/ber_tlv_length.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/ber_tlv_tag.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/ber_decoder.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_application.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/der_encoder.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/xer_decoder.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/xer_encoder.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/per_decoder.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/per_support.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_system.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_bit_data.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/per_encoder.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/constraints.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_random_fill.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_codecs.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/constr_TYPE.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/ber_tlv_length.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/ber_tlv_tag.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/ber_decoder.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_application.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/der_encoder.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/xer_decoder.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/xer_encoder.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/per_decoder.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/per_support.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_system.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_bit_data.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/per_encoder.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/constraints.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_random_fill.h \
  /usr/include/assert.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/INTEGER.h \
- /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/asn/asn1c/asn_codecs_prim.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/INTEGER.h \
+ /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/asn/asn1c/asn_codecs_prim.h \
  /usr/include/errno.h /usr/include/x86_64-linux-gnu/bits/errno.h \
  /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h

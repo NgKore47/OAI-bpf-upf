@@ -1,4 +1,4 @@
-# Install script for directory: /home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/utils
+# Install script for directory: /home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/utils
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

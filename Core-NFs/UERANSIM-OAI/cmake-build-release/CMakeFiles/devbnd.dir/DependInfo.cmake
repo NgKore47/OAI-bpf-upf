@@ -8,15 +8,11 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/ubuntu/oai-core-ebpf-deploy/UERANSIM-OAI/src/binder.cpp" "CMakeFiles/devbnd.dir/src/binder.cpp.o" "gcc" "CMakeFiles/devbnd.dir/src/binder.cpp.o.d"
+  "/home/ubuntu/OAI-bpf-upf/Core-NFs/UERANSIM-OAI/src/binder.cpp" "CMakeFiles/devbnd.dir/src/binder.cpp.o" "gcc" "CMakeFiles/devbnd.dir/src/binder.cpp.o.d"
   )
 
-# Targets to which this target links which contain Fortran sources.
-set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
-  )
-
-# Targets to which this target links which contain Fortran sources.
-set(CMAKE_Fortran_TARGET_FORWARD_LINKED_INFO_FILES
+# Targets to which this target links.
+set(CMAKE_TARGET_LINKED_INFO_FILES
   )
 
 # Fortran module output directory.
