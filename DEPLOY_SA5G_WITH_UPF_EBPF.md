@@ -77,10 +77,10 @@ OAI-UPF-eBPF as a part of the OAI 5G mobile Core Network implements a data netwo
 
 <figure>
   <img
-    src="./docs/images/5gcn_eBPF_upf.png"
+    src="./docs/images/UPF-arch.png"
     alt="This is the UPF architecture using the eBPF technology. The architecture is designed in two layers: user and kernel space layers"
     width="900"
-    height="600" />
+    height="960" />
 
   <figcaption><b><font size = "5">Figure 1: UPF Architecture: eBPF XDP based</font></b></figcaption>
 
