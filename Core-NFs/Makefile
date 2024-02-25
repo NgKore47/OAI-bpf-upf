@@ -1,12 +1,11 @@
 SHELL := /bin/bash
 
-.PHONY: help
+.PHONY: help NFs mysql
 
 help:
-	@echo "make [target] [NFs/UERASANIM/clean/mysql]"
+	@echo "make [target] [NFs/UERANSIM/clean/mysql]"
 
 NFs:
-	export MAKEFLAGS="-B" >> ~/.bashrc && export MAKEFLAGS="-B" >> ~/.zshrc
 	/bin/sh -c ./setup/NF.sh
 	@echo "NFs build completed successfully"
 
