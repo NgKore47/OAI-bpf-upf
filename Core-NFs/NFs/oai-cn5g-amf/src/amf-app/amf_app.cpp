@@ -34,6 +34,7 @@
 #include "UeN1N2InfoSubscriptionCreatedData.h"
 #include "amf_config.hpp"
 #include "amf_config_yaml.hpp"
+#include "amf_conversions.hpp"
 #include "amf_n1.hpp"
 #include "amf_n2.hpp"
 #include "amf_sbi.hpp"
@@ -60,14 +61,10 @@ void amf_app_task(void*);
 
 //------------------------------------------------------------------------------
 amf_app::amf_app(const amf_config& amf_cfg)
-    : m_amf_ue_ngap_id2ue_ctx(),
-      m_ue_ctx_key(),
-      m_supi2ue_ctx(),
-      m_curl_handle_responses_n2_sm() {
-  amf_ue_ngap_id2ue_ctx       = {};
-  ue_ctx_key                  = {};
-  supi2ue_ctx                 = {};
-  curl_handle_responses_n2_sm = {};
+    : m_amf_ue_ngap_id2ue_ctx(), m_ue_ctx_key(), m_supi2ue_ctx() {
+  amf_ue_ngap_id2ue_ctx = {};
+  ue_ctx_key            = {};
+  supi2ue_ctx           = {};
   Logger::amf_app().startup("Creating AMF application functionality layer");
   if (itti_inst->create_task(TASK_AMF_APP, amf_app_task, nullptr)) {
     Logger::amf_app().error("Cannot create task TASK_AMF_APP");
@@ -112,84 +109,84 @@ void amf_app_task(void*) {
         Logger::amf_app().debug("Received NAS_SIG_ESTAB_REQ");
         itti_nas_signalling_establishment_request* m =
             dynamic_cast<itti_nas_signalling_establishment_request*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case N1N2_MESSAGE_TRANSFER_REQ: {
         Logger::amf_app().debug("Received N1N2_MESSAGE_TRANSFER_REQ");
         itti_n1n2_message_transfer_request* m =
             dynamic_cast<itti_n1n2_message_transfer_request*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case NON_UE_N2_MESSAGE_TRANSFER_REQ: {
         Logger::amf_app().debug("Received NON_UE_N2_MESSAGE_TRANSFER_REQ");
         itti_non_ue_n2_message_transfer_request* m =
             dynamic_cast<itti_non_ue_n2_message_transfer_request*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_N1_MESSAGE_NOTIFICATION: {
         Logger::amf_app().debug("Received SBI_N1_MESSAGE_NOTIFICATION");
         itti_sbi_n1_message_notification* m =
             dynamic_cast<itti_sbi_n1_message_notification*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_N1N2_MESSAGE_SUBSCRIBE: {
         Logger::amf_app().debug("Received SBI_N1N2_MESSAGE_SUBSCRIBE");
         itti_sbi_n1n2_message_subscribe* m =
             dynamic_cast<itti_sbi_n1n2_message_subscribe*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_N1N2_MESSAGE_UNSUBSCRIBE: {
         Logger::amf_app().debug("Received SBI_N1N2_MESSAGE_UNSUBSCRIBE");
         itti_sbi_n1n2_message_unsubscribe* m =
             dynamic_cast<itti_sbi_n1n2_message_unsubscribe*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_PDU_SESSION_RELEASE_NOTIF: {
         Logger::amf_app().debug("Received SBI_PDU_SESSION_RELEASE_NOTIF");
         itti_sbi_pdu_session_release_notif* m =
             dynamic_cast<itti_sbi_pdu_session_release_notif*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_AMF_CONFIGURATION: {
         Logger::amf_app().debug("Received SBI_AMF_CONFIGURATION");
         itti_sbi_amf_configuration* m =
             dynamic_cast<itti_sbi_amf_configuration*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_UPDATE_AMF_CONFIGURATION: {
         Logger::amf_app().debug("Received SBI_UPDATE_AMF_CONFIGURATION");
         itti_sbi_update_amf_configuration* m =
             dynamic_cast<itti_sbi_update_amf_configuration*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_REGISTER_NF_INSTANCE_RESPONSE: {
         Logger::amf_app().debug("Received SBI_REGISTER_NF_INSTANCE_RESPONSE");
         itti_sbi_register_nf_instance_response* m =
             dynamic_cast<itti_sbi_register_nf_instance_response*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_UPDATE_NF_INSTANCE_RESPONSE: {
         Logger::amf_app().debug("Received SBI_UPDATE_NF_INSTANCE_RESPONSE");
         itti_sbi_update_nf_instance_response* m =
             dynamic_cast<itti_sbi_update_nf_instance_response*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case SBI_DEREGISTER_NF_INSTANCE_RESPONSE: {
         Logger::amf_app().debug("Received SBI_DEREGISTER_NF_INSTANCE_RESPONSE");
         itti_sbi_deregister_nf_instance_response* m =
             dynamic_cast<itti_sbi_deregister_nf_instance_response*>(msg);
-        amf_app_inst->handle_itti_message(ref(*m));
+        amf_app_inst->handle_itti_message(std::ref(*m));
       } break;
 
       case TIME_OUT: {
@@ -245,7 +242,8 @@ long amf_app::generate_amf_ue_ngap_id() {
 }
 
 //------------------------------------------------------------------------------
-bool amf_app::is_ran_amf_id_2_ue_context(const string& ue_context_key) const {
+bool amf_app::is_ran_amf_id_2_ue_context(
+    const std::string& ue_context_key) const {
   std::shared_lock lock(m_ue_ctx_key);
   if (ue_ctx_key.count(ue_context_key) > 0) {
     if (ue_ctx_key.at(ue_context_key) != nullptr) {
@@ -269,13 +267,13 @@ bool amf_app::ran_amf_id_2_ue_context(
 
 //------------------------------------------------------------------------------
 void amf_app::set_ran_amf_id_2_ue_context(
-    const string& ue_context_key, const std::shared_ptr<ue_context>& uc) {
+    const std::string& ue_context_key, const std::shared_ptr<ue_context>& uc) {
   std::unique_lock lock(m_ue_ctx_key);
   ue_ctx_key[ue_context_key] = uc;
 }
 
 //------------------------------------------------------------------------------
-bool amf_app::is_supi_2_ue_context(const string& supi) const {
+bool amf_app::is_supi_2_ue_context(const std::string& supi) const {
   std::shared_lock lock(m_supi2ue_ctx);
   if (supi2ue_ctx.count(supi) > 0) {
     if (supi2ue_ctx.at(supi) != nullptr) {
@@ -299,14 +297,14 @@ bool amf_app::supi_2_ue_context(
 
 //------------------------------------------------------------------------------
 void amf_app::set_supi_2_ue_context(
-    const string& supi, const std::shared_ptr<ue_context>& uc) {
+    const std::string& supi, const std::shared_ptr<ue_context>& uc) {
   std::unique_lock lock(m_supi2ue_ctx);
   supi2ue_ctx[supi] = uc;
 }
 
 //------------------------------------------------------------------------------
 bool amf_app::find_pdu_session_context(
-    const string& supi, const std::uint8_t pdu_session_id,
+    const std::string& supi, const std::uint8_t pdu_session_id,
     std::shared_ptr<pdu_session_context>& psc) {
   std::shared_ptr<ue_context> uc = {};
   if (!supi_2_ue_context(supi, uc)) return false;
@@ -316,7 +314,7 @@ bool amf_app::find_pdu_session_context(
 
 //------------------------------------------------------------------------------
 bool amf_app::get_pdu_sessions_context(
-    const string& supi,
+    const std::string& supi,
     std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx) {
   std::shared_ptr<ue_context> uc = {};
   if (!supi_2_ue_context(supi, uc)) return false;
@@ -326,7 +324,7 @@ bool amf_app::get_pdu_sessions_context(
 
 //------------------------------------------------------------------------------
 bool amf_app::update_pdu_sessions_context(
-    const string& supi, const uint8_t& pdu_session_id,
+    const std::string& supi, const uint8_t& pdu_session_id,
     const oai::amf::model::SmContextStatusNotification& statusNotification) {
   std::shared_ptr<ue_context> uc = {};
   if (!supi_2_ue_context(supi, uc)) return false;
@@ -463,7 +461,7 @@ void amf_app::handle_itti_message(
 
   // Get UE context, if the context doesn't exist, create a new one
   std::string ue_context_key =
-      conv::get_ue_context_key(itti_msg.ran_ue_ngap_id, amf_ue_ngap_id);
+      amf_conv::get_ue_context_key(itti_msg.ran_ue_ngap_id, amf_ue_ngap_id);
   if (!ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_app().debug(
         "No existing UE Context, Create a new one with ran_amf_id %s",
@@ -504,7 +502,7 @@ void amf_app::handle_itti_message(
   std::string guti   = {};
   bool is_guti_valid = false;
   if (itti_msg.is_5g_s_tmsi_present) {
-    guti = conv::tmsi_to_guti(
+    guti = amf_conv::tmsi_to_guti(
         itti_msg.tai.mcc, itti_msg.tai.mnc, amf_cfg.guami.region_id,
         itti_msg._5g_s_tmsi);
     is_guti_valid = true;
@@ -545,7 +543,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   // in N1 Message Notify is actually is RegistrationRequest from UE to the
   // initial AMF)
   bstring n1sm = nullptr;
-  conv::msg_str_2_msg_hex(itti_msg.n1sm, n1sm);
+  amf_conv::msg_str_2_msg_hex(itti_msg.n1sm, n1sm);
 
   // get RegistrationContextContainer including gNB info
   // UE context information, N1 message from UE, AN address
@@ -634,8 +632,8 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
     }
   }
 
-  string ue_context_key =
-      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
+  std::string ue_context_key =
+      amf_conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
   if (!ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_app().debug(
         "No existing UE Context associated with UE Context Key %s",
@@ -712,7 +710,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
         itti_n1_msg->get_msg_name());
   }
 
-  bdestroy_wrapper(&n1sm);
+  utils::bdestroy_wrapper(&n1sm);
   return;
 }
 
@@ -1064,9 +1062,9 @@ uint32_t amf_app::generate_tmsi() {
 
 //------------------------------------------------------------------------------
 bool amf_app::generate_5g_guti(
-    const uint32_t ranid, const long amfid, string& mcc, string& mnc,
+    const uint32_t ranid, const long amfid, std::string& mcc, std::string& mnc,
     uint32_t& tmsi) {
-  string ue_context_key          = conv::get_ue_context_key(ranid, amfid);
+  std::string ue_context_key     = amf_conv::get_ue_context_key(ranid, amfid);
   std::shared_ptr<ue_context> uc = {};
 
   if (!ran_amf_id_2_ue_context(ue_context_key, uc)) {
@@ -1149,9 +1147,10 @@ evsub_id_t amf_app::handle_event_exposure_subscription(
         std::optional<nlohmann::json> location_data = std::nullopt;
         utils::wait_for_result(f, location_data);
         if (location_data.has_value()) {
+          nlohmann::json location_data_json = location_data.value();
           Logger::amf_app().info(
               "Determine Location Response (SUPI: %s) : \n%s", kvp.first,
-              location_data.value().dump(2).c_str());
+              location_data_json.dump(2).c_str());
         } else {
           Logger::amf_app().error(
               "Determine Location failed (SUPI: %s)...\n", kvp.first);
@@ -1270,9 +1269,10 @@ void amf_app::generate_amf_profile() {
   nf_instance_profile.set_nf_instance_name(amf_cfg.amf_name);
   nf_instance_profile.set_nf_type("AMF");
   nf_instance_profile.set_nf_status("REGISTERED");
-  nf_instance_profile.set_nf_heartBeat_timer(50);
-  nf_instance_profile.set_nf_priority(1);
-  nf_instance_profile.set_nf_capacity(100);
+  nf_instance_profile.set_nf_heartBeat_timer(
+      50);                                   // TODO: remove hardcoded value
+  nf_instance_profile.set_nf_priority(1);    // TODO: remove hardcoded value
+  nf_instance_profile.set_nf_capacity(100);  // TODO: remove hardcoded value
   nf_instance_profile.delete_nf_ipv4_addresses();
   nf_instance_profile.add_nf_ipv4_addresses(amf_cfg.sbi.addr4);
 
@@ -1281,8 +1281,10 @@ void amf_app::generate_amf_profile() {
   nf_service.service_instance_id = "namf_communication";
   nf_service.service_name        = "namf_communication";
   nf_service_version_t version   = {};
-  version.api_version_in_uri     = amf_cfg.sbi_api_version;
-  version.api_full_version       = "1.0.0";  // TODO: to be updated
+  if (amf_cfg.sbi.api_version.has_value())
+    version.api_version_in_uri =
+        amf_cfg.sbi.api_version.value_or(DEFAULT_SBI_API_VERSION);
+  version.api_full_version = "1.0.0";  // TODO: to be updated
   nf_service.versions.push_back(version);
   nf_service.scheme            = "http";
   nf_service.nf_service_status = "REGISTERED";
@@ -1304,8 +1306,9 @@ void amf_app::generate_amf_profile() {
   conv::int_to_string_hex(
       amf_cfg.guami.amf_set_id, info.amf_set_id, AMF_SET_ID_LENGTH);
   for (auto g : amf_cfg.guami_list) {
-    guami_5g_t guami = {};
-    conv::get_amf_id(g.region_id, g.amf_set_id, g.amf_pointer, guami.amf_id);
+    guami_t guami = {};
+    amf_conv::get_amf_id(
+        g.region_id, g.amf_set_id, g.amf_pointer, guami.amf_id);
     guami.plmn.mcc = g.mcc;
     guami.plmn.mnc = g.mnc;
     info.guami_list.push_back(guami);
@@ -1318,7 +1321,7 @@ void amf_app::generate_amf_profile() {
     for (auto s : p.slice_list) {
       snssai_t nssai = {};
       nssai.sST      = s.sst;
-      conv::sd_int_to_string_hex(s.sd, nssai.sD);
+      amf_conv::sd_int_to_string_hex(s.sd, nssai.sD);
       amf_snssai.push_back(nssai);
     }
   }
@@ -1402,20 +1405,6 @@ void amf_app::timer_nrf_registration_timeout(
     timer_id_t timer_id, uint64_t arg2_user) {
   register_to_nrf();
 }
-//---------------------------------------------------------------------------------------------
-void amf_app::add_promise(
-    const uint32_t pid, const boost::shared_ptr<boost::promise<uint32_t>>& p) {
-  std::unique_lock lock(m_curl_handle_responses_smf);
-  curl_handle_responses_smf.emplace(pid, p);
-}
-
-//---------------------------------------------------------------------------------------------
-void amf_app::add_promise(
-    const uint32_t id,
-    const boost::shared_ptr<boost::promise<std::string>>& p) {
-  std::unique_lock lock(m_curl_handle_responses_n2_sm);
-  curl_handle_responses_n2_sm.emplace(id, p);
-}
 
 //---------------------------------------------------------------------------------------------
 void amf_app::add_promise(
@@ -1423,36 +1412,6 @@ void amf_app::add_promise(
     const boost::shared_ptr<boost::promise<nlohmann::json>>& p) {
   std::unique_lock lock(m_curl_handle_responses_sbi);
   curl_handle_responses_sbi.emplace(pid, p);
-}
-
-//---------------------------------------------------------------------------------------------
-void amf_app::trigger_process_response(
-    const uint32_t pid, const uint32_t http_code) {
-  Logger::amf_app().debug(
-      "Trigger process response: Set promise with ID %u "
-      "to ready",
-      pid);
-  std::unique_lock lock(m_curl_handle_responses_smf);
-  if (curl_handle_responses_smf.count(pid) > 0) {
-    curl_handle_responses_smf[pid]->set_value(http_code);
-    // Remove this promise from list
-    curl_handle_responses_smf.erase(pid);
-  }
-}
-
-//------------------------------------------------------------------------------
-void amf_app::trigger_process_response(
-    const uint32_t pid, const std::string& n2_sm) {
-  Logger::amf_app().debug(
-      "Trigger process response: Set promise with ID %u "
-      "to ready",
-      pid);
-  std::unique_lock lock(m_curl_handle_responses_n2_sm);
-  if (curl_handle_responses_n2_sm.count(pid) > 0) {
-    curl_handle_responses_n2_sm[pid]->set_value(n2_sm);
-    // Remove this promise from list
-    curl_handle_responses_n2_sm.erase(pid);
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -1479,7 +1438,7 @@ void amf_app::trigger_pdu_session_release(
   if (uc->get_pdu_sessions_context(sessions_ctx)) {
     // Send Nsmf_PDUSession_ReleaseSMContext to SMF to release all existing
     // PDU sessions
-    std::map<uint32_t, boost::shared_future<uint32_t>> smf_responses;
+    std::map<uint32_t, boost::shared_future<nlohmann::json>> smf_responses;
     for (auto session : sessions_ctx) {
       std::shared_ptr<itti_nsmf_pdusession_release_sm_context> itti_msg =
           std::make_shared<itti_nsmf_pdusession_release_sm_context>(
@@ -1489,9 +1448,9 @@ void amf_app::trigger_pdu_session_release(
       uint32_t promise_id = amf_app_inst->generate_promise_id();
       Logger::amf_app().debug("Promise ID generated %d", promise_id);
 
-      boost::shared_ptr<boost::promise<uint32_t>> p =
-          boost::make_shared<boost::promise<uint32_t>>();
-      boost::shared_future<uint32_t> f = p->get_future();
+      boost::shared_ptr<boost::promise<nlohmann::json>> p =
+          boost::make_shared<boost::promise<nlohmann::json>>();
+      boost::shared_future<nlohmann::json> f = p->get_future();
 
       // Store the future to be processed later
       smf_responses.emplace(promise_id, f);
@@ -1512,19 +1471,29 @@ void amf_app::trigger_pdu_session_release(
 
     // Wait for the response available and process accordingly
     while (!smf_responses.empty()) {
-      std::optional<uint32_t> response_code = std::nullopt;
-      utils::wait_for_result(smf_responses.begin()->second, response_code);
+      // Wait for the result available and process accordingly
+      std::optional<nlohmann::json> result = std::nullopt;
+      utils::wait_for_result(smf_responses.begin()->second, result);
 
-      if (response_code.has_value()) {
-        // Remove PDU session
-        // TODO for multiple sessions
-        if ((response_code.value() == 200) or (response_code.value() == 204)) {
-          for (auto session : sessions_ctx) {
-            uc->remove_pdu_sessions_context(session->pdu_session_id);
+      if (result.has_value()) {
+        nlohmann::json result_json = result.value();
+        Logger::amf_server().debug(
+            "Got result for promise ID %d, json content %s",
+            smf_responses.begin()->first, result_json.dump());
+
+        uint32_t http_response_code = 0;
+        if (result_json.find("httpResponseCode") != result_json.end()) {
+          http_response_code = result_json["httpResponseCode"].get<int>();
+          // Remove PDU session
+          // TODO for multiple sessions
+          if ((http_response_code == 200) or (http_response_code == 204)) {
+            for (auto session : sessions_ctx) {
+              uc->remove_pdu_sessions_context(session->pdu_session_id);
+            }
           }
+        } else {
+          // TODO:
         }
-      } else {
-        // TODO:
       }
       smf_responses.erase(smf_responses.begin());
     }
@@ -1542,16 +1511,16 @@ void amf_app::trigger_pdu_session_up_deactivation(
   std::vector<std::shared_ptr<pdu_session_context>> sessions_ctx;
   if (uc->get_pdu_sessions_context(sessions_ctx)) {
     // Send PDUSessionUpdateSMContextRequest to SMF for each PDU session
-    std::map<uint32_t, boost::shared_future<std::string>> curl_responses;
+    std::map<uint32_t, boost::shared_future<nlohmann::json>> curl_responses;
     for (auto session : sessions_ctx) {
       Logger::amf_n2().debug("PDU Session ID %d", session->pdu_session_id);
       // Generate a promise and associate this promise to the curl handle
       uint32_t promise_id = amf_app_inst->generate_promise_id();
       Logger::amf_n2().debug("Promise ID generated %d", promise_id);
 
-      boost::shared_ptr<boost::promise<std::string>> p =
-          boost::make_shared<boost::promise<std::string>>();
-      boost::shared_future<std::string> f = p->get_future();
+      boost::shared_ptr<boost::promise<nlohmann::json>> p =
+          boost::make_shared<boost::promise<nlohmann::json>>();
+      boost::shared_future<nlohmann::json> f = p->get_future();
 
       // Store the future to be processed later
       curl_responses.emplace(session->pdu_session_id, f);
@@ -1589,22 +1558,30 @@ void amf_app::trigger_pdu_session_up_deactivation(
     // Wait for the response available and process accordingly
     bool result = true;
     while (!curl_responses.empty()) {
-      std::optional<std::string> response_code_str = std::nullopt;
-      utils::wait_for_result(curl_responses.begin()->second, response_code_str);
+      // Wait for the result available and process accordingly
+      std::optional<nlohmann::json> result = std::nullopt;
+      utils::wait_for_result(curl_responses.begin()->second, result);
 
-      if (response_code_str.has_value()) {
-        Logger::ngap().debug(
-            "Got result for PDU Session ID %d", curl_responses.begin()->first);
+      if (result.has_value()) {
+        nlohmann::json result_json = result.value();
+        Logger::amf_server().debug(
+            "Got result from a promise with PDU Session Id %d, json content %s",
+            curl_responses.begin()->first, result_json.dump());
 
-        result                 = result && true;
-        uint32_t response_code = 0;
-        if (conv::string_to_int32(response_code_str.value(), response_code)) {
-          if ((response_code == 200) or (response_code == 204)) {
-            // uc->remove_pdu_sessions_context(curl_responses.begin()->first);
+        uint32_t http_response_code = 0;
+        if (result_json.find("httpResponseCode") != result_json.end()) {
+          result             = result && true;
+          http_response_code = result_json["httpResponseCode"].get<int>();
+
+          if ((http_response_code == 200) or (http_response_code == 204)) {
             uc->set_up_cnx_state(
                 curl_responses.begin()->first,
                 up_cnx_state_e::UPCNX_STATE_DEACTIVATED);
           }
+
+        } else {
+          result = false;
+          Logger::ngap().warn("Couldn't get the HTTP response code");
         }
       } else {
         result = false;
@@ -1626,16 +1603,16 @@ void amf_app::trigger_pdu_session_up_activation(
   std::vector<std::shared_ptr<pdu_session_context>> sessions_ctx;
   if (uc->get_pdu_sessions_context(sessions_ctx)) {
     // Send PDUSessionUpdateSMContextRequest to SMF for each PDU session
-    std::map<uint32_t, boost::shared_future<std::string>> curl_responses;
+    std::map<uint32_t, boost::shared_future<nlohmann::json>> curl_responses;
     for (auto session : sessions_ctx) {
       Logger::amf_n2().debug("PDU Session ID %d", session->pdu_session_id);
       // Generate a promise and associate this promise to the curl handle
       uint32_t promise_id = amf_app_inst->generate_promise_id();
       Logger::amf_n2().debug("Promise ID generated %d", promise_id);
 
-      boost::shared_ptr<boost::promise<std::string>> p =
-          boost::make_shared<boost::promise<std::string>>();
-      boost::shared_future<std::string> f = p->get_future();
+      boost::shared_ptr<boost::promise<nlohmann::json>> p =
+          boost::make_shared<boost::promise<nlohmann::json>>();
+      boost::shared_future<nlohmann::json> f = p->get_future();
 
       // Store the future to be processed later
       curl_responses.emplace(session->pdu_session_id, f);
@@ -1673,23 +1650,28 @@ void amf_app::trigger_pdu_session_up_activation(
     // Wait for the response available and process accordingly
     bool result = true;
     while (!curl_responses.empty()) {
-      std::optional<std::string> response_code_str = std::nullopt;
-      utils::wait_for_result(curl_responses.begin()->second, response_code_str);
+      // Wait for the result available and process accordingly
+      std::optional<nlohmann::json> result = std::nullopt;
+      utils::wait_for_result(curl_responses.begin()->second, result);
 
-      if (response_code_str.has_value()) {
-        Logger::ngap().debug(
-            "Got result for PDU Session ID %d", curl_responses.begin()->first);
-        uint8_t response_code = 0;
-        if (!conv::string_to_int8(response_code_str.value(), response_code)) {
-          Logger::ngap().warn("Couldn't get the HTTP response code");
-        }
-        result = result && true;
-        if ((response_code == 200) or (response_code == 204)) {
-          uc->set_up_cnx_state(
-              curl_responses.begin()->first,
-              up_cnx_state_e::UPCNX_STATE_ACTIVATED);
-        }
+      if (result.has_value()) {
+        nlohmann::json result_json = result.value();
+        Logger::amf_server().debug(
+            "Got result from a promise for PDU session Id %d, json content %s",
+            curl_responses.begin()->first, result_json.dump());
 
+        uint32_t http_response_code = 0;
+        if (result_json.find("httpResponseCode") != result_json.end()) {
+          http_response_code = result_json["httpResponseCode"].get<int>();
+          result             = result && true;
+          if ((http_response_code == 200) or (http_response_code == 204)) {
+            uc->set_up_cnx_state(
+                curl_responses.begin()->first,
+                up_cnx_state_e::UPCNX_STATE_ACTIVATED);
+          }
+        } else {
+          result = true;  // TODO: To be verified
+        }
       } else {
         result = true;  // TODO: To be verified
       }
@@ -1709,16 +1691,16 @@ void amf_app::trigger_pdu_session_up_activation(
   std::shared_ptr<pdu_session_context> psc = {};
   if (uc->find_pdu_session_context(pdu_session_id, psc)) {
     // Send PDUSessionUpdateSMContextRequest to SMF for each PDU session
-    std::map<uint32_t, boost::shared_future<std::string>> curl_responses;
+    std::map<uint32_t, boost::shared_future<nlohmann::json>> curl_responses;
     // for (auto session : sessions_ctx) {
     Logger::amf_n2().debug("PDU Session ID %d", pdu_session_id);
     // Generate a promise and associate this promise to the curl handle
     uint32_t promise_id = amf_app_inst->generate_promise_id();
     Logger::amf_n2().debug("Promise ID generated %d", promise_id);
 
-    boost::shared_ptr<boost::promise<std::string>> p =
-        boost::make_shared<boost::promise<std::string>>();
-    boost::shared_future<std::string> f = p->get_future();
+    boost::shared_ptr<boost::promise<nlohmann::json>> p =
+        boost::make_shared<boost::promise<nlohmann::json>>();
+    boost::shared_future<nlohmann::json> f = p->get_future();
 
     // Store the future to be processed later
     curl_responses.emplace(pdu_session_id, f);
@@ -1756,21 +1738,28 @@ void amf_app::trigger_pdu_session_up_activation(
     // Wait for the response available and process accordingly
     bool result = true;
     while (!curl_responses.empty()) {
-      std::optional<std::string> response_code_str = std::nullopt;
-      utils::wait_for_result(curl_responses.begin()->second, response_code_str);
+      // Wait for the result available and process accordingly
+      std::optional<nlohmann::json> result = std::nullopt;
+      utils::wait_for_result(curl_responses.begin()->second, result);
 
-      if (response_code_str.has_value()) {
-        Logger::ngap().debug(
-            "Got result for PDU Session ID %d", curl_responses.begin()->first);
-        uint8_t response_code = 0;
-        if (!conv::string_to_int8(response_code_str.value(), response_code)) {
-          Logger::ngap().warn("Couldn't get the HTTP response code");
-        }
-        result = result && true;
-        if ((response_code == 200) or (response_code == 204)) {
-          uc->set_up_cnx_state(
-              curl_responses.begin()->first,
-              up_cnx_state_e::UPCNX_STATE_ACTIVATED);
+      if (result.has_value()) {
+        nlohmann::json result_json = result.value();
+        Logger::amf_server().debug(
+            "Got result from a promise for PDU session Id %d, json content %s",
+            curl_responses.begin()->first, result_json.dump());
+
+        uint32_t http_response_code = 0;
+        if (result_json.find("httpResponseCode") != result_json.end()) {
+          http_response_code = result_json["httpResponseCode"].get<int>();
+          result             = result && true;
+          if ((http_response_code == 200) or (http_response_code == 204)) {
+            uc->set_up_cnx_state(
+                curl_responses.begin()->first,
+                up_cnx_state_e::UPCNX_STATE_ACTIVATED);
+          }
+
+        } else {
+          result = true;
         }
       } else {
         result = true;

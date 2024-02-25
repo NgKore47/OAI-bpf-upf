@@ -35,7 +35,7 @@
 #include "logger_base.hpp"
 #include "string.hpp"
 
-namespace oai::common::sbi {
+// TODO: namespace oai::sbi
 
 constexpr auto kNumberOfFirstConnectionRetries       = 10;
 constexpr auto kNumberOfConnectionRetries            = 3;
@@ -74,54 +74,37 @@ typedef struct interface_cfg_s {
   }
 
   void from_json(nlohmann::json& json_data) {
-    try {
-      if (json_data.find("if_name") != json_data.end()) {
-        this->if_name = json_data["if_name"].get<std::string>();
-      }
-      if (json_data.find("addr4") != json_data.end()) {
-        std::string addr4_str = {};
-        addr4_str             = json_data["addr4"].get<std::string>();
-        if (boost::iequals(addr4_str, "read")) {
-          if (get_inet_addr_infos_from_iface(
-                  this->if_name, this->addr4, this->network4, this->mtu)) {
-            oai::logger::logger_registry::get_logger(LOGGER_COMMON)
-                .error(
-                    "Could not read %s network interface configuration",
-                    this->if_name);
-            return;
-          }
-        } else {
-          IPV4_STR_ADDR_TO_INADDR(
-              util::trim(addr4_str).c_str(), this->addr4,
-              "BAD IPv4 ADDRESS FORMAT FOR INTERFACE !");
-          if (json_data.find("network4") != json_data.end()) {
-            std::string network4_str = json_data["network4"].get<std::string>();
-            IPV4_STR_ADDR_TO_INADDR(
-                util::trim(network4_str).c_str(), this->network4,
-                "BAD IPv4 ADDRESS FORMAT FOR INTERFACE !");
-          }
-          // TODO: addr6
-          if (json_data.find("mtu") != json_data.end()) {
-            this->mtu = json_data["mtu"].get<int>();
-          }
-          if (json_data.find("port") != json_data.end()) {
-            this->port = json_data["port"].get<int>();
-          }
-          if (json_data.find("api_version") != json_data.end()) {
-            this->api_version = std::make_optional<std::string>(
-                json_data["api_version"].get<std::string>());
-          }
-        }
-      }
-    } catch (std::exception& e) {
-      oai::logger::logger_registry::get_logger(LOGGER_COMMON)
-          .error("%s", e.what());
-    }
-  }
+    this->if_name         = json_data["if_name"].get<std::string>();
+    std::string addr4_str = {};
+    addr4_str             = json_data["addr4"].get<std::string>();
 
-  std::string get_ipv4_root() {
-    return std::string(inet_ntoa(this->addr4)) + ":" +
-           std::to_string(this->port);
+    if (boost::iequals(addr4_str, "read")) {
+      if (get_inet_addr_infos_from_iface(
+              this->if_name, this->addr4, this->network4, this->mtu)) {
+        oai::logger::logger_registry::get_logger(LOGGER_COMMON)
+            .error(
+                "Could not read %s network interface configuration",
+                this->if_name);
+        return;
+      }
+    } else {
+      IPV4_STR_ADDR_TO_INADDR(
+          util::trim(addr4_str).c_str(), this->addr4,
+          "BAD IPv4 ADDRESS FORMAT FOR INTERFACE !");
+
+      std::string network4_str = json_data["network4"].get<std::string>();
+      IPV4_STR_ADDR_TO_INADDR(
+          util::trim(network4_str).c_str(), this->network4,
+          "BAD IPv4 ADDRESS FORMAT FOR INTERFACE !");
+      // TODO: addr6
+      this->mtu  = json_data["mtu"].get<int>();
+      this->port = json_data["port"].get<int>();
+
+      if (json_data.find("api_version") != json_data.end()) {
+        this->api_version = std::make_optional<std::string>(
+            json_data["api_version"].get<std::string>());
+      }
+    }
   }
 
 } interface_cfg_t;
@@ -140,17 +123,8 @@ typedef struct nf_addr_s {
   }
 
   void from_json(nlohmann::json& json_data) {
-    try {
-      if (json_data.find("uri_root") != json_data.end()) {
-        this->uri_root = json_data["uri_root"].get<std::string>();
-      }
-      if (json_data.find("api_version") != json_data.end()) {
-        this->api_version = json_data["api_version"].get<std::string>();
-      }
-    } catch (std::exception& e) {
-      oai::logger::logger_registry::get_logger(LOGGER_COMMON)
-          .error("%s", e.what());
-    }
+    this->uri_root    = json_data["uri_root"].get<std::string>();
+    this->api_version = json_data["api_version"].get<std::string>();
   }
 
 } nf_addr_t;
@@ -158,8 +132,7 @@ typedef struct nf_addr_s {
 class sbi_helper {
  public:
   // AMF: Communication Service
-  static inline const std::string AmfCommBase          = "/namf-comm/";
-  static inline const std::string AmfCommPathUeContext = "/ue-contexts/";
+  static inline const std::string AmfCommBase = "/namf-comm/";
   static inline const std::string AmfCommPathUeContextContextId =
       "/ue-contexts/:ueContextId";
   static inline const std::string AmfCommPathUeContextContextIdRelease =
@@ -174,8 +147,6 @@ class sbi_helper {
       "/ue-contexts/:ueContextId/relocate";
   static inline const std::string AmfCommPathUeContextContextIdN1N2Message =
       "/ue-contexts/:ueContextId/n1-n2-messages";
-  static inline const std::string AmfCommPathUeContextContextIdN1MessageNotify =
-      "/ue-contexts/:ueContextId/n1-message-notify";
   static inline const std::string
       AmfCommPathUeContextContextIdN1N2MessageSubscriptions =
           "/ue-contexts/:ueContextId/n1-n2-messages/subscriptions";
@@ -206,19 +177,7 @@ class sbi_helper {
       "/:ueContextId/provide-loc-info";
   static inline const std::string AmflocPathUeContextIdCancelPosInfo =
       "/:ueContextId/cancel-pos-info";
-  static inline const std::string AmflocPathDetermineLocation =
-      "/determine-location";
   // TODO: AMF: Mobile Terminated Service
-  // AMF Configuration Service
-  static inline const std::string AmfConfBase              = "/namf-oai/";
-  static inline const std::string AmfConfPathConfiguration = "/configuration/";
-  // AMF Status Notify
-  static inline const std::string AmfStatusNotifBase = "/namf-status-notfify/";
-  static inline const std::string AmfStatusNotifPathPduSessionRelease =
-      "/pdu-session-release/callback/";
-  static inline const std::string
-      AmfStatusNotifPathPduSessionReleasePduSessionId =
-          "/pdu-session-release/callback/:ueContextId/:pduSessionId";
 
   // AUSF: UEAuthentication
   static inline const std::string AusfAuthBase = "/nausf-auth/";
@@ -257,36 +216,11 @@ class sbi_helper {
   // TODO: NRF: Access Token Service
   // TODO: NRF: Bootstrapping Service
 
-  // NSSF: Network Slice Selection Service
-  static inline const std::string NssfNsSelectionBase = "/nnssf-nsselection/";
-  static inline const std::string NssfNsSelectionPathNetworSliceInformation =
-      "/network-slice-information";
-  // TODO: NSSF NSSAI Availability Service
+  // TODO: NSSF
 
   // TODO: PCF
 
-  // SMF: SMF PDU Session Service
-  static inline const std::string SmfPduSessionBase = "/nsmf-pdusession/";
-  static inline const std::string SmfPduSessionPathSmContexts = "/sm-contexts";
-  static inline const std::string SmfPduSessionPathSmContextsRetrieve =
-      "/sm-contexts/:smContextRef/retrieve";
-  static inline const std::string SmfPduSessionPathSmContextsModify =
-      "/sm-contexts/:smContextRef/modify";
-  static inline const std::string SmfPduSessionPathSmContextsRelease =
-      "/sm-contexts/:smContextRef/release";
-  static inline const std::string SmfPduSessionPathSmContextsSendMoData =
-      "/sm-contexts/:smContextRef/send-mo-data";
-  static inline const std::string SmfPduSessionPathPduSessions =
-      "/pdu-sessions";
-  static inline const std::string SmfPduSessionPathPduSessionsModify =
-      "/pdu-sessions/:pduSessionRef/modify";
-  static inline const std::string SmfPduSessionPathPduSessionsRelease =
-      "/pdu-sessions/:pduSessionRef/release";
-  static inline const std::string SmfPduSessionPathPduSessionsRetrieve =
-      "/pdu-sessions/:pduSessionRef/retrieve";
-  static inline const std::string SmfPduSessionPathPduSessionsTransferMoData =
-      "/pdu-sessions/:pduSessionRef/transfer-mo-data";
-  // TODO: SMF: Session Management Event Exposure Service
+  // TODO: SMF
 
   // UDM: Subscriber Data Management
   static inline const std::string UdmSdmBase           = "/nudm-sdm/";
@@ -637,7 +571,7 @@ class sbi_helper {
    * @return void
    */
   static void get_nrf_nfm_api_root(
-      const nf_addr_t& nrf_addr, std::string& api_root);
+      const nf_addr_t& nrf_addr, std::string& nrf__root);
 
   /*
    * Get NRF NF Register URI
@@ -650,31 +584,6 @@ class sbi_helper {
       const nf_addr_t& nrf_addr, const std::string& nf_instance,
       std::string& uri);
 
-  /*
-   * Get NRF Disc API Root
-   * @param [const nf_addr_t& ] nrf_addr: NRF's Addr info
-   * @param [std::string& ] api_root: NRF Discovery API Root
-   * @return void
-   */
-  static void get_nrf_disc_api_root(
-      const nf_addr_t& nrf_addr, std::string& api_root);
-
-  /*
-   * Get NRF NF Discovery SearchNFInstances URI
-   * @param [const nf_addr_t& ] nrf_addr: NRF's Addr info
-   * @param [std::string& ] uri: NRF SearchNFInstances URI
-   * @return void
-   */
-  static void get_nrf_disc_search_nf_instances_uri(
-      const nf_addr_t& nrf_addr, std::string& uri);
-
-  /*
-   * Get FMT format from an input string (3GPP format)
-   * @param [const std::string& ] input_str: Input string
-   * @param [std::string& ] output_str: Output string
-   * @return void
-   */
   static void get_fmt_format_form(
       const std::string& input_str, std::string& output_str);
 };
-}  // namespace oai::common::sbi

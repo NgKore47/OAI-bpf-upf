@@ -26,10 +26,7 @@
 #include "logger.hpp"
 #include "amf.hpp"
 #include <boost/algorithm/string.hpp>
-
-extern "C" {
-#include "dynamic_memory_check.h"
-}
+#include "utils.hpp"
 
 bool mime_parser::parse(const std::string& str) {
   std::string CRLF = "\r\n";
@@ -62,7 +59,8 @@ bool mime_parser::parse(const std::string& str) {
     Logger::amf_app().debug("Content Type: %s", p.content_type.c_str());
 
     // if (p.content_type.compare("application/json") == 0) {
-    if (boost::iequals(p.content_type, "application/json")) {
+    if (boost::iequals(p.content_type, "application/json") or
+        boost::iequals(p.content_type, "application/problem+json")) {
       p.content_id = JSON_CONTENT_ID_MIME;
       crlf_pos =
           str.find(CRLF + CRLF, content_type_pos);  // beginning of content
@@ -156,7 +154,7 @@ unsigned char* mime_parser::format_string_as_hex(const std::string& str) {
       "amf_app", "Data (formatted):", data_hex, str_len / 2);
 
   // free memory
-  free_wrapper((void**) &data);
+  utils::free_wrapper((void**) &data);
   return data_hex;
 }
 

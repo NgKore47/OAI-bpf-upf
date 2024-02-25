@@ -11,6 +11,7 @@
  * the class manually.
  */
 #include "Helpers.h"
+
 #include <regex>
 
 namespace oai::model::common::helpers {

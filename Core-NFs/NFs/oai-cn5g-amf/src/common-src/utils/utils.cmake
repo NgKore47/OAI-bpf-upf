@@ -28,7 +28,7 @@ file(GLOB UTILS_SRC_FILES
 
 if (TARGET ${NF_TARGET})
 target_include_directories(${NF_TARGET} PUBLIC ${UTILS_DIR})
-#target_sources(${NF_TARGET} PRIVATE
-#        ${UTILS_SRC_FILES}
-#        )
+target_sources(${NF_TARGET} PRIVATE
+        ${UTILS_SRC_FILES}
+        )
 endif()

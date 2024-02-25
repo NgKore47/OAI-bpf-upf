@@ -22,12 +22,9 @@
 #include "NGSetupResponse.hpp"
 
 #include "amf.hpp"
-#include "conversions.hpp"
+#include "amf_conversions.hpp"
 #include "logger.hpp"
-
-extern "C" {
-#include "dynamic_memory_check.h"
-}
+#include "utils.hpp"
 
 namespace ngap {
 
@@ -63,7 +60,7 @@ void NGSetupResponseMsg::setAMFName(const std::string& name) {
 
   if (!amfName.encode(ie->value.choice.AMFName)) {
     Logger::ngap().error("Encode NGAP AMFName IE error");
-    free_wrapper((void**) &ie);
+    utils::free_wrapper((void**) &ie);
     return;
   }
 
@@ -98,7 +95,7 @@ void NGSetupResponseMsg::setGUAMIList(std::vector<struct GuamiItem_s> list) {
 
   if (!servedGUAMIList.encode(ie->value.choice.ServedGUAMIList)) {
     Logger::ngap().error("Encode NGAP ServedGUAMIList IE error");
-    free_wrapper((void**) &ie);
+    utils::free_wrapper((void**) &ie);
     return;
   }
 
@@ -118,7 +115,7 @@ void NGSetupResponseMsg::setRelativeAmfCapacity(long capacity) {
 
   if (!relativeAmfCapacity.encode(ie->value.choice.RelativeAMFCapacity)) {
     Logger::ngap().error("Encode NGAP RelativeAMFCapacity IE error");
-    free_wrapper((void**) &ie);
+    utils::free_wrapper((void**) &ie);
     return;
   }
 
@@ -146,7 +143,7 @@ void NGSetupResponseMsg::setPlmnSupportList(
 
       uint32_t sd = SD_NO_VALUE;
       if (!list[i].slice_list[j].sd.empty()) {
-        conv::sd_string_to_int(list[i].slice_list[j].sd, sd);
+        amf_conv::sd_string_to_int(list[i].slice_list[j].sd, sd);
       }
       snssai.setSd(sd);
       snssais.push_back(snssai);
@@ -165,7 +162,7 @@ void NGSetupResponseMsg::setPlmnSupportList(
 
   if (!plmnSupportList.encode(ie->value.choice.PLMNSupportList)) {
     Logger::ngap().error("Encode NGAP PLMNSupportList IE error");
-    free_wrapper((void**) &ie);
+    utils::free_wrapper((void**) &ie);
     return;
   }
 
@@ -261,6 +258,25 @@ bool NGSetupResponseMsg::decode(Ngap_NGAP_PDU_t* ngapMsgPdu) {
           return false;
         }
       } break;
+      case Ngap_ProtocolIE_ID_id_UERetentionInformation: {
+        if (ngSetupResponsIEs->protocolIEs.list.array[i]->criticality ==
+                Ngap_Criticality_ignore &&
+            ngSetupResponsIEs->protocolIEs.list.array[i]->value.present ==
+                Ngap_NGSetupResponseIEs__value_PR_UERetentionInformation) {
+          UERetentionInformation tmp = {};
+          if (!tmp.decode(ngSetupResponsIEs->protocolIEs.list.array[i]
+                              ->value.choice.UERetentionInformation)) {
+            Logger::ngap().error(
+                "Decoded NGAP UERetentionInformation IE error");
+            return false;
+          }
+          ueRetentionInformation =
+              std::make_optional<UERetentionInformation>(tmp);
+        } else {
+          Logger::ngap().error("Decoded NGAP UERetentionInformation IE error");
+          return false;
+        }
+      } break;
       case Ngap_ProtocolIE_ID_id_CriticalityDiagnostics: {
         Logger::ngap().debug("Decoded NGAP CriticalityDiagnostics");
       } break;
@@ -338,6 +354,35 @@ bool NGSetupResponseMsg::getPlmnSupportList(
   }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+void NGSetupResponseMsg::setUERetentionInformation(
+    const UERetentionInformation& value) {
+  ueRetentionInformation = std::make_optional<UERetentionInformation>(value);
+
+  Ngap_NGSetupResponseIEs_t* ie =
+      (Ngap_NGSetupResponseIEs_t*) calloc(1, sizeof(Ngap_NGSetupResponseIEs_t));
+  ie->id            = Ngap_ProtocolIE_ID_id_UERetentionInformation;
+  ie->criticality   = Ngap_Criticality_ignore;
+  ie->value.present = Ngap_NGSetupResponseIEs__value_PR_UERetentionInformation;
+
+  if (!ueRetentionInformation.value().encode(
+          ie->value.choice.UERetentionInformation)) {
+    Logger::ngap().error("Encode NGAP UERetentionInformation IE error");
+    utils::free_wrapper((void**) &ie);
+    return;
+  }
+
+  int ret = ASN_SEQUENCE_ADD(&ngSetupResponsIEs->protocolIEs.list, ie);
+  if (ret != 0)
+    Logger::ngap().error("Encode NGAP UERetentionInformation IE error");
+}
+
+//------------------------------------------------------------------------------
+void NGSetupResponseMsg::getUERetentionInformation(
+    std::optional<UERetentionInformation>& value) const {
+  value = ueRetentionInformation;
 }
 
 }  // namespace ngap
