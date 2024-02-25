@@ -22,9 +22,12 @@
 #include "InitialContextSetupRequest.hpp"
 
 #include "amf.hpp"
-#include "amf_conversions.hpp"
+#include "conversions.hpp"
 #include "logger.hpp"
-#include "utils.hpp"
+
+extern "C" {
+#include "dynamic_memory_check.h"
+}
 
 namespace ngap {
 
@@ -68,7 +71,7 @@ void InitialContextSetupRequestMsg::setAmfUeNgapId(const unsigned long& id) {
   int ret = amfUeNgapId.encode(ie->value.choice.AMF_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode AMF_UE_NGAP_ID IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -92,7 +95,7 @@ void InitialContextSetupRequestMsg::setRanUeNgapId(
   int ret = ranUeNgapId.encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -116,7 +119,7 @@ void InitialContextSetupRequestMsg::setOldAmf(const std::string& name) {
   int ret = oldAMF.value().encode(ie->value.choice.AMFName);
   if (!ret) {
     Logger::ngap().error("Encode oldAmfName IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -150,7 +153,7 @@ void InitialContextSetupRequestMsg::setUEAggregateMaxBitRate(
       ie->value.choice.UEAggregateMaximumBitRate);
   if (!ret) {
     Logger::ngap().error("Encode UEAggregateMaxBitRate IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -183,7 +186,7 @@ void InitialContextSetupRequestMsg::setUEAggregateMaxBitRate(
       ie->value.choice.UEAggregateMaximumBitRate);
   if (!ret) {
     Logger::ngap().error("Encode UEAggregateMaximumBitRate IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -247,7 +250,7 @@ void InitialContextSetupRequestMsg::setCoreNetworkAssistanceInfo(
   if (!ret) {
     Logger::ngap().error(
         "Encode CoreNetworkAssistanceInformationForInactive IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -289,7 +292,7 @@ bool InitialContextSetupRequestMsg::getCoreNetworkAssistanceInfo(
 }
 
 //------------------------------------------------------------------------------
-void InitialContextSetupRequestMsg::setGuami(const guami_full_format_t& value) {
+void InitialContextSetupRequestMsg::setGuami(const Guami_t& value) {
   guami.setGUAMI(
       value.mcc, value.mnc, value.region_id, value.amf_set_id,
       value.amf_pointer);
@@ -304,7 +307,7 @@ void InitialContextSetupRequestMsg::setGuami(const guami_full_format_t& value) {
   int ret = guami.encode(ie->value.choice.GUAMI);
   if (!ret) {
     Logger::ngap().error("Encode GUAMI IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -313,7 +316,7 @@ void InitialContextSetupRequestMsg::setGuami(const guami_full_format_t& value) {
 }
 
 //------------------------------------------------------------------------------
-bool InitialContextSetupRequestMsg::getGuami(guami_full_format_t& value) {
+bool InitialContextSetupRequestMsg::getGuami(Guami_t& value) {
   guami.getGUAMI(
       value.mcc, value.mnc, value.region_id, value.amf_set_id,
       value.amf_pointer);
@@ -335,7 +338,7 @@ void InitialContextSetupRequestMsg::setPduSessionResourceSetupRequestList(
     pDUSessionID.set(list[i].pduSessionId);
     std::optional<NasPdu> nAS_PDU = std::nullopt;
 
-    if (amf_conv::check_bstring(list[i].nas_pdu)) {
+    if (conv::check_bstring(list[i].nas_pdu)) {
       NasPdu tmp = {};
       tmp.set(list[i].nas_pdu);
       nAS_PDU = std::optional<NasPdu>(tmp);
@@ -366,7 +369,7 @@ void InitialContextSetupRequestMsg::setPduSessionResourceSetupRequestList(
       ie->value.choice.PDUSessionResourceSetupListCxtReq);
   if (!ret) {
     Logger::ngap().error("Encode PDUSessionResourceSetupListCxtReq IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -418,7 +421,7 @@ void InitialContextSetupRequestMsg::setAllowedNssai(
     snssai.setSst(list[i].sst);
     uint32_t sd = SD_NO_VALUE;
     if (!list[i].sd.empty()) {
-      amf_conv::sd_string_to_int(list[i].sd, sd);
+      conv::sd_string_to_int(list[i].sd, sd);
     }
     snssai.setSd(sd);
     snssaiList.push_back(snssai);
@@ -435,7 +438,7 @@ void InitialContextSetupRequestMsg::setAllowedNssai(
   int ret = allowedNssai.encode(ie->value.choice.AllowedNSSAI);
   if (!ret) {
     Logger::ngap().error("Encode AllowedNSSAI IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -481,7 +484,7 @@ void InitialContextSetupRequestMsg::setUESecurityCapability(
       uESecurityCapabilities.encode(ie->value.choice.UESecurityCapabilities);
   if (!ret) {
     Logger::ngap().error("Encode UESecurityCapabilities IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -516,7 +519,7 @@ void InitialContextSetupRequestMsg::setSecurityKey(uint8_t* key) {
   int ret = securityKey.encode(ie->value.choice.SecurityKey);
   if (!ret) {
     Logger::ngap().error("Encode SecurityKey IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -551,7 +554,7 @@ void InitialContextSetupRequestMsg::setMobilityRestrictionList(
       ie->value.choice.MobilityRestrictionList);
   if (!ret) {
     Logger::ngap().error("Encode MobilityRestrictionList IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -576,7 +579,7 @@ void InitialContextSetupRequestMsg::setNasPdu(const bstring& pdu) {
   int ret = nasPdu.value().encode(ie->value.choice.NAS_PDU);
   if (!ret) {
     Logger::ngap().error("Encode NAS PDU error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -609,7 +612,7 @@ void InitialContextSetupRequestMsg::setUERadioCapability(
       ueRadioCapability.value().encode(ie->value.choice.UERadioCapability);
   if (!ret) {
     Logger::ngap().error("Encode UERadioCapability IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -633,10 +636,9 @@ void InitialContextSetupRequestMsg::setMaskedIMEISV(const std::string& imeisv) {
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_InitialContextSetupRequestIEs__value_PR_MaskedIMEISV;
 
-  if (!amf_conv::string_2_masked_imeisv(
-          imeisv, ie->value.choice.MaskedIMEISV)) {
+  if (!conv::string_2_masked_imeisv(imeisv, ie->value.choice.MaskedIMEISV)) {
     Logger::ngap().error("Encode MaskedIMEISV IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 

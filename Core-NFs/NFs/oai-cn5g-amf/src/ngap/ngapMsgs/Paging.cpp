@@ -22,7 +22,10 @@
 #include "Paging.hpp"
 
 #include "logger.hpp"
-#include "utils.hpp"
+
+extern "C" {
+#include "dynamic_memory_check.h"
+}
 
 namespace ngap {
 

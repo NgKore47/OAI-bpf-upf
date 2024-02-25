@@ -22,7 +22,10 @@
 #include "InitialUEMessage.hpp"
 
 #include "logger.hpp"
-#include "utils.hpp"
+
+extern "C" {
+#include "dynamic_memory_check.h"
+}
 
 namespace ngap {
 
@@ -60,7 +63,7 @@ void InitialUEMessageMsg::setRanUENgapID(const uint32_t& value) {
   int ret = ranUeNgapId.encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -81,7 +84,7 @@ void InitialUEMessageMsg::setNasPdu(const bstring& pdu) {
   int ret = nasPdu.encode(ie->value.choice.NAS_PDU);
   if (!ret) {
     Logger::ngap().error("Encode NAS PDU IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -112,7 +115,7 @@ void InitialUEMessageMsg::setUserLocationInfoNR(
       userLocationInformation.encode(ie->value.choice.UserLocationInformation);
   if (!ret) {
     Logger::ngap().error("Encode UserLocationInformation IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -135,7 +138,7 @@ void InitialUEMessageMsg::setRRCEstablishmentCause(
       rRCEstablishmentCause.encode(ie->value.choice.RRCEstablishmentCause);
   if (!ret) {
     Logger::ngap().error("Encode RRCEstablishmentCause IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -157,7 +160,7 @@ void InitialUEMessageMsg::setUeContextRequest(
   int ret = uEContextRequest.value().encode(ie->value.choice.UEContextRequest);
   if (!ret) {
     Logger::ngap().error("Encode UEContextRequest IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 

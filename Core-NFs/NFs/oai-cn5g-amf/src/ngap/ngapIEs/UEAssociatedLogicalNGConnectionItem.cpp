@@ -23,7 +23,9 @@
 
 #include "logger.hpp"
 
-#include "utils.hpp"
+extern "C" {
+#include "dynamic_memory_check.h"
+}
 
 namespace ngap {
 
@@ -49,7 +51,7 @@ bool UEAssociatedLogicalNGConnectionItem::setAmfUeNgapId(const uint64_t& id) {
   if (!ret) {
     Logger::ngap().error("Encode AMF_UE_NGAP_ID IE error");
   }
-  utils::free_wrapper((void**) &ie);
+  free_wrapper((void**) &ie);
   return true;
 }
 
@@ -78,7 +80,7 @@ void UEAssociatedLogicalNGConnectionItem::setRanUeNgapId(
   if (!ret) {
     Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
   }
-  utils::free_wrapper((void**) &ie);
+  free_wrapper((void**) &ie);
   return;
 }
 

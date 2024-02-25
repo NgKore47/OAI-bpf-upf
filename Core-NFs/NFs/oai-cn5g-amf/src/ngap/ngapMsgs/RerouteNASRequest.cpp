@@ -23,9 +23,12 @@
 
 #include "amf.hpp"
 #include "common_defs.h"
-#include "amf_conversions.hpp"
+#include "conversions.hpp"
 #include "logger.hpp"
-#include "utils.hpp"
+
+extern "C" {
+#include "dynamic_memory_check.h"
+}
 
 namespace ngap {
 
@@ -63,7 +66,7 @@ void RerouteNASRequest::setAmfUeNgapId(const unsigned long& id) {
   int ret = amfUeNgapId.value().encode(ie->value.choice.AMF_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode AMF_UE_NGAP_ID IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -91,7 +94,7 @@ void RerouteNASRequest::setRanUeNgapId(const uint32_t& ran_ue_ngap_id) {
   int ret = ranUeNgapId.encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -115,7 +118,7 @@ void RerouteNASRequest::setAllowedNssai(const std::vector<S_Nssai>& list) {
 
     uint32_t sd = SD_NO_VALUE;
     if (!list[i].sd.empty()) {
-      amf_conv::sd_string_to_int(list[i].sd, sd);
+      conv::sd_string_to_int(list[i].sd, sd);
     }
     snssai.setSd(sd);
     snssaiList.push_back(snssai);
@@ -132,7 +135,7 @@ void RerouteNASRequest::setAllowedNssai(const std::vector<S_Nssai>& list) {
   int ret = allowedNssai.value().encode(ie->value.choice.AllowedNSSAI);
   if (!ret) {
     Logger::ngap().error("Encode AllowedNSSAI IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -188,7 +191,7 @@ bool RerouteNASRequest::setAMFSetID(const uint16_t& amf_set_id) {
   int ret = amfSetID.encode(ie->value.choice.AMFSetID);
   if (!ret) {
     Logger::ngap().error("Encode AMFSetID IE error!");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return false;
   }
 

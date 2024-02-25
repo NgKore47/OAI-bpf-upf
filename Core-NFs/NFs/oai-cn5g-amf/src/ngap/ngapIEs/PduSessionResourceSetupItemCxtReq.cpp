@@ -22,7 +22,10 @@
 #include "PduSessionResourceSetupItemCxtReq.hpp"
 
 #include "logger.hpp"
-#include "utils.hpp"
+
+extern "C" {
+#include "dynamic_memory_check.h"
+}
 
 namespace ngap {
 
@@ -70,7 +73,7 @@ bool PduSessionResourceSetupItemCxtReq::encode(
         (Ngap_NAS_PDU_t*) calloc(1, sizeof(Ngap_NAS_PDU_t));
     if (!naspdu) return false;
     if (!nas_pdu_.value().encode(*naspdu)) {
-      utils::free_wrapper((void**) &naspdu);
+      free_wrapper((void**) &naspdu);
       return false;
     }
     pduSessionResourceSetupItemCxtReq.nAS_PDU = naspdu;

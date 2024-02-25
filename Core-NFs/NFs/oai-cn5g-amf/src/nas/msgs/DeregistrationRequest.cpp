@@ -21,15 +21,18 @@
 
 #include "DeregistrationRequest.hpp"
 
-#include "NasHelper.hpp"
-#include "amf_conversions.hpp"
+#include "conversions.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-DeregistrationRequest::DeregistrationRequest()
+DeregistrationRequest::DeregistrationRequest(bool is_ue_originating)
     : NasMmPlainHeader(EPD_5GS_MM_MSG) {
-  NasMmPlainHeader::SetMessageType(DEREGISTRATION_REQUEST_UE_ORIGINATING);
+  if (is_ue_originating) {
+    NasMmPlainHeader::SetMessageType(DEREGISTRATION_REQUEST_UE_ORIGINATING);
+  } else {
+    NasMmPlainHeader::SetMessageType(DEREGISTRATION_REQUEST_UE_TERMINATED);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -78,9 +81,8 @@ bool DeregistrationRequest::GetNgKsi(uint8_t& ng_ksi) const {
 
 //------------------------------------------------------------------------------
 void DeregistrationRequest::SetSuciSupiFormatImsi(
-    const std::string& mcc, const std::string& mnc,
-    const std::string& routing_ind, uint8_t protection_sch_id,
-    const std::string& msin) {
+    const string& mcc, const string& mnc, const string& routing_ind,
+    uint8_t protection_sch_id, const string& msin) {
   if (protection_sch_id != NULL_SCHEME) {
     Logger::nas_mm().error(
         "Encoding SUCI and SUPI format for IMSI error, please choose correct "
@@ -114,16 +116,15 @@ std::string DeregistrationRequest::Get5gGuti() const {
                          std::to_string(guti.value().amf_region_id) +
                          std::to_string(guti.value().amf_set_id) +
                          std::to_string(guti.value().amf_pointer) +
-                         amf_conv::tmsi_to_string(guti.value()._5g_tmsi);
+                         conv::tmsi_to_string(guti.value()._5g_tmsi);
   Logger::nas_mm().debug("5G GUTI %s", guti_str.c_str());
   return guti_str;
 }
 
 //------------------------------------------------------------------------------
 void DeregistrationRequest::SetSuciSupiFormatImsi(
-    const std::string& mcc, const std::string& mnc,
-    const std::string& routing_ind, uint8_t protection_sch_id, uint8_t hnpki,
-    const std::string& msin) {
+    const string& mcc, const string& mnc, const string& routing_ind,
+    uint8_t protection_sch_id, uint8_t hnpki, const string& msin) {
   // TODO:
 }
 
@@ -152,21 +153,36 @@ int DeregistrationRequest::Encode(uint8_t* buf, int len) {
   encoded_size += encoded_ie_size;
 
   // De-registration Type and ngKSI
-  encoded_ie_size = NasHelper::Encode(ie_ng_ksi, buf, len, encoded_size);
+  int size =
+      ie_deregistrationtype.Encode(buf + encoded_size, len - encoded_size);
+  if (size == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Encoding %s error", _5gsDeregistrationType::GetIeName().c_str());
+    return KEncodeDecodeError;
+  }
   // only 1/2 octet
-  if ((encoded_ie_size == KEncodeDecodeError) or (encoded_ie_size != 0)) {
+  if (size != 0) {
+    Logger::nas_mm().error(
+        "Encoding %s error", _5gsDeregistrationType::GetIeName().c_str());
     return KEncodeDecodeError;
   }
 
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_ng_ksi, buf, len, encoded_size)) == KEncodeDecodeError) {
+  size = ie_ng_ksi.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
+    encoded_size++;  // 1/2 octet for Deregistration Type, 1/2 for ngKSI
+  } else {
+    Logger::nas_mm().error(
+        "Encoding %s error", NasKeySetIdentifier::GetIeName().c_str());
     return KEncodeDecodeError;
   }
-  encoded_size++;  // 1/2 octet for Deregistration Type, 1/2 for ngKSI
 
   // 5GS mobile identity
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_5gs_mobility_id, buf, len, encoded_size)) == KEncodeDecodeError) {
+  size = ie_5gs_mobility_id.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
+    encoded_size += size;
+  } else {
+    Logger::nas_mm().error(
+        "Encoding %s error", _5gsMobileIdentity::GetIeName().c_str());
     return KEncodeDecodeError;
   }
 
@@ -179,35 +195,42 @@ int DeregistrationRequest::Encode(uint8_t* buf, int len) {
 int DeregistrationRequest::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding DeregistrationRequest message");
 
-  int decoded_size    = 0;
-  int decoded_ie_size = 0;
+  int decoded_size   = 0;
+  int decoded_result = 0;
 
   // Header
-  decoded_ie_size = NasMmPlainHeader::Decode(buf, len);
-  if (decoded_ie_size == KEncodeDecodeError) {
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
     Logger::nas_mm().error("Decoding NAS Header error");
     return KEncodeDecodeError;
   }
-  decoded_size += decoded_ie_size;
+  decoded_size += decoded_result;
 
   // De-registration Type + ngKSI
-  if ((decoded_ie_size = NasHelper::Decode(
-           ie_deregistrationtype, buf, len, decoded_size, false)) ==
-      KEncodeDecodeError) {
+  decoded_result = ie_deregistrationtype.Decode(
+      buf + decoded_size, len - decoded_size, false);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", _5gsDeregistrationType::GetIeName().c_str());
     return KEncodeDecodeError;
   }
-  if ((decoded_ie_size = NasHelper::Decode(
-           ie_ng_ksi, buf, len, decoded_size, true, false)) ==  // 4 higher bits
-      KEncodeDecodeError) {
+  decoded_result = ie_ng_ksi.Decode(
+      buf + decoded_size, len - decoded_size, true, false);  // 4 higher bits
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", NasKeySetIdentifier::GetIeName().c_str());
     return KEncodeDecodeError;
   }
   decoded_size++;  // 1/2 octet for De-registration Type, 1/2 ngKSI
 
-  if ((decoded_ie_size = NasHelper::Decode(
-           ie_5gs_mobility_id, buf, len, decoded_size, false)) ==
-      KEncodeDecodeError) {
+  decoded_result =
+      ie_5gs_mobility_id.Decode(buf + decoded_size, len - decoded_size, false);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", _5gsMobileIdentity::GetIeName().c_str());
     return KEncodeDecodeError;
   }
+  decoded_size += decoded_result;
 
   Logger::nas_mm().debug(
       "Decoded DeregistrationRequest message (len %d)", decoded_size);

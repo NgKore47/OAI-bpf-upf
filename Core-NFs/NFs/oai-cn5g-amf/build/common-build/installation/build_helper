@@ -24,7 +24,7 @@
 # author Laurent Thomas, Lionel GAUTHIER
 #
 #######################################
-SUPPORTED_DISTRO="Ubuntu 20.04,22.04, RHEL 9.x, UBI 9.x, Rocky-Linux 9.x"
+SUPPORTED_DISTRO="Ubuntu 20.04,22.04, RHEL 8, UBI8-8.8, Rocky-Linux-8.7-8"
 if [ ! -f /etc/os-release ]; then
   echo_fatal "No /etc/os-release file found. You're likely on an unsupported distro."
 fi
@@ -33,7 +33,7 @@ OS_RELEASE=$(grep "^VERSION_ID=" /etc/os-release | sed "s/VERSION_ID=//" | sed "
 case "$OS_DISTRO" in
   fedora) OS_BASEDISTRO="fedora"; INSTALLER="dnf"; CMAKE="cmake" ;;
   rocky)  OS_BASEDISTRO="fedora"; INSTALLER="dnf"; CMAKE="cmake" ;;
-  rhel)   OS_BASEDISTRO="fedora"; INSTALLER="dnf"; CMAKE="cmake" ;;
+  rhel)   OS_BASEDISTRO="fedora"; INSTALLER="yum"; CMAKE="cmake" ;;
   debian) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
   ubuntu) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
 esac
@@ -130,14 +130,18 @@ check_supported_distribution() {
     case "$distribution" in
         "ubuntu20.04") return 0 ;;
         "ubuntu22.04") return 0 ;;
-        "rhel9.3")     return 0 ;;
-        "rhel9.4")     return 0 ;;
-        "rhel9.5")     return 0 ;;
-        "rhel9.6")     return 0 ;;
-        "rocky9.3")    return 0 ;;
-        "rocky9.4")    return 0 ;;
-        "rocky9.5")    return 0 ;;
-        "rocky9.6")    return 0 ;;
+        "rhel8")       return 0 ;;
+        "rhel8.2")     return 0 ;;
+        "rhel8.3")     return 0 ;;
+        "rhel8.4")     return 0 ;;
+        "rhel8.5")     return 0 ;;
+        "rhel8.6")     return 0 ;;
+        "rhel8.7")     return 0 ;;
+        "rhel8.8")     return 0 ;;
+        "rhel8.9")     return 0 ;;
+        "rocky8.7")    return 0 ;;
+        "rocky8.8")    return 0 ;;
+        "rocky8.9")    return 0 ;;
     esac
     return 1
 }
@@ -301,7 +305,7 @@ check_enable_epel_repos() {
       while [[ $idx -lt 4 ]]; do
         wget --tries=4 --retry-connrefused --wait=8 \
           --user-agent="Mozilla" \
-          https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+          https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
         if [[ $? -ne 0 ]]; then
           idx=$(($idx+1))
           sleep 1
@@ -310,11 +314,11 @@ check_enable_epel_repos() {
         fi
       done
       if [[ $idx -eq 4 ]]; then
-        echo "Error: Could not download the EPEL-9 RPM file"
+        echo "Error: Could not download the EPEL-8 RPM file"
         exit 1
       fi
-      $SUDO $INSTALLER install $OPTION epel-release-latest-9.noarch.rpm
-      rm -f epel-release-latest-9.noarch.rpm
+      $SUDO $INSTALLER install $OPTION epel-release-latest-8.noarch.rpm
+      rm -f epel-release-latest-8.noarch.rpm
     fi
   fi
 }

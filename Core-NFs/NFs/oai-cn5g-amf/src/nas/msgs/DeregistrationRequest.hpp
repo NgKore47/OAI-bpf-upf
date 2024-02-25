@@ -24,11 +24,12 @@
 
 #include "NasIeHeader.hpp"
 
+using namespace std;
 namespace nas {
 
 class DeregistrationRequest : public NasMmPlainHeader {
  public:
-  DeregistrationRequest();
+  DeregistrationRequest(bool is_ue_originating);
   ~DeregistrationRequest();
 
   int Encode(uint8_t* buf, int len);
@@ -49,13 +50,11 @@ class DeregistrationRequest : public NasMmPlainHeader {
   void GetMobilityIdentityType(uint8_t& type) const;
 
   void SetSuciSupiFormatImsi(
-      const std::string& mcc, const std::string& mnc,
-      const std::string& routing_ind, uint8_t protection_sch_id,
-      const std::string& msin);
+      const string& mcc, const string& mnc, const string& routing_ind,
+      uint8_t protection_sch_id, const string& msin);
   void SetSuciSupiFormatImsi(
-      const std::string& mcc, const std::string& mnc,
-      const std::string& routing_ind, uint8_t protection_sch_id, uint8_t hnpki,
-      const std::string& msin);
+      const string& mcc, const string& mnc, const string& routing_ind,
+      uint8_t protection_sch_id, uint8_t hnpki, const string& msin);
   bool GetSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) const;
 
   void Set5gGuti();

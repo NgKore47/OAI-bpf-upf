@@ -21,8 +21,6 @@
 
 #include "ServiceRequest.hpp"
 
-#include "NasHelper.hpp"
-
 using namespace nas;
 
 //------------------------------------------------------------------------------
@@ -171,50 +169,94 @@ int ServiceRequest::Encode(uint8_t* buf, int len) {
   encoded_size += encoded_ie_size;
 
   // ngKSI and Service Type
-  encoded_ie_size = NasHelper::Encode(ie_ng_ksi, buf, len, encoded_size);
-  if ((encoded_ie_size == KEncodeDecodeError) or
-      (encoded_ie_size != 0)) {  // 1/2 octet
+  int size = ie_ng_ksi.Encode(buf + encoded_size, len - encoded_size);
+  if ((size == KEncodeDecodeError) or (size != 0)) {  // 1/2 octet
+    Logger::nas_mm().debug(
+        "Encoding %s error", NasKeySetIdentifier::GetIeName().c_str());
     return KEncodeDecodeError;
   }
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_service_type, buf, len, encoded_size)) == KEncodeDecodeError) {
-    return KEncodeDecodeError;
-  }
-  if (encoded_ie_size == 0)
+
+  size = ie_service_type.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
     encoded_size++;  // 1/2 octet for ngKSI, 1/2 for Service Type
+  } else {
+    Logger::nas_mm().debug(
+        "Encoding %s error", ServiceType::GetIeName().c_str());
+    return KEncodeDecodeError;
+  }
 
   // 5G-S-TMSI
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_5g_s_tmsi, buf, len, encoded_size)) == KEncodeDecodeError) {
+  size = ie_5g_s_tmsi.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
+    encoded_size += size;
+  } else {
+    Logger::nas_mm().debug(
+        "Encoding %s error", _5gsMobileIdentity::GetIeName().c_str());
     return KEncodeDecodeError;
   }
 
   // Uplink data status
-  if ((encoded_ie_size =
-           NasHelper::Encode(ie_uplink_data_status, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_uplink_data_status.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available", UplinkDataStatus::GetIeName().c_str());
+  } else {
+    size = ie_uplink_data_status.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
+      encoded_size += size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error", UplinkDataStatus::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
   // PDU session status
-  if ((encoded_ie_size =
-           NasHelper::Encode(ie_pdu_session_status, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_pdu_session_status.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available", PduSessionStatus::GetIeName().c_str());
+  } else {
+    size = ie_pdu_session_status.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
+      encoded_size += size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error", PduSessionStatus::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
   // Allowed PDU session status
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_allowed_pdu_session_status, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_allowed_pdu_session_status.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available", AllowedPduSessionStatus::GetIeName().c_str());
+  } else {
+    size = ie_allowed_pdu_session_status.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
+      encoded_size += size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error", AllowedPduSessionStatus::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
   // NAS message container
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_nas_message_container, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_nas_message_container.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available", NasMessageContainer::GetIeName().c_str());
+  } else {
+    size = ie_nas_message_container.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
+      encoded_size += size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error", NasMessageContainer::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
   Logger::nas_mm().debug("Encoded ServiceRequest message (%d)", encoded_size);
@@ -225,37 +267,30 @@ int ServiceRequest::Encode(uint8_t* buf, int len) {
 int ServiceRequest::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding ServiceRequest message");
 
-  int decoded_size    = 0;
-  int decoded_ie_size = 0;
+  int decoded_size   = 0;
+  int decoded_result = 0;
 
   // Header
-  decoded_ie_size = NasMmPlainHeader::Decode(buf, len);
-  if (decoded_ie_size == KEncodeDecodeError) {
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
     Logger::nas_mm().error("Decoding NAS Header error");
     return KEncodeDecodeError;
   }
-  decoded_size += decoded_ie_size;
+  decoded_size += decoded_result;
 
   // ngKSI + Service type
-  decoded_ie_size =
-      NasHelper::Decode(ie_ng_ksi, buf, len, decoded_size, false, false);
-  if ((decoded_ie_size == KEncodeDecodeError) or (decoded_ie_size != 0)) {
-    return KEncodeDecodeError;
-  }
-  if ((decoded_ie_size = NasHelper::Decode(
-           ie_service_type, buf, len, decoded_size, true, false)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
-  }
-  if (decoded_ie_size == 0)
-    decoded_size++;  // 1/2 octet for ngKSI, 1/2 for Service Type
+  decoded_result =
+      ie_ng_ksi.Decode(buf + decoded_size, len - decoded_size, false, false);
+  if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_result = ie_service_type.Decode(
+      buf + decoded_size, len - decoded_size, true, false);
+  if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size++;  // 1/2 octet for ngKSI, 1/2 for Service Type
 
-  // 5G-S-TMSI
-  if ((decoded_ie_size =
-           NasHelper::Decode(ie_5g_s_tmsi, buf, len, decoded_size, false)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
-  }
+  decoded_result =
+      ie_5g_s_tmsi.Decode(buf + decoded_size, len - decoded_size, false);
+  if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_result;
 
   // Decode other IEs
   uint8_t octet = 0x00;
@@ -266,22 +301,28 @@ int ServiceRequest::Decode(uint8_t* buf, int len) {
     switch (octet) {
       case kIeiUplinkDataStatus: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiUplinkDataStatus);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_uplink_data_status, buf, len, decoded_size, true)) ==
-            KEncodeDecodeError) {
+        UplinkDataStatus ie_uplink_data_status_tmp = {};
+        if ((decoded_result = ie_uplink_data_status_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
           return KEncodeDecodeError;
-        }
+        decoded_size += decoded_result;
+        ie_uplink_data_status =
+            std::optional<UplinkDataStatus>(ie_uplink_data_status_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 
       case kIeiPduSessionStatus: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiPduSessionStatus);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_pdu_session_status, buf, len, decoded_size, true)) ==
-            KEncodeDecodeError) {
+        PduSessionStatus ie_pdu_session_status_tmp = {};
+        if ((decoded_result = ie_pdu_session_status_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
           return KEncodeDecodeError;
-        }
+        decoded_size += decoded_result;
+        ie_pdu_session_status =
+            std::optional<PduSessionStatus>(ie_pdu_session_status_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -289,22 +330,28 @@ int ServiceRequest::Decode(uint8_t* buf, int len) {
       case kIeiAllowedPduSessionStatus: {
         Logger::nas_mm().debug(
             "Decoding IEI 0x%x", kIeiAllowedPduSessionStatus);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_allowed_pdu_session_status, buf, len, decoded_size,
-                 true)) == KEncodeDecodeError) {
+        AllowedPduSessionStatus ie_allowed_pdu_session_status_tmp = {};
+        if ((decoded_result = ie_allowed_pdu_session_status_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
           return KEncodeDecodeError;
-        }
+        decoded_size += decoded_result;
+        ie_allowed_pdu_session_status = std::optional<AllowedPduSessionStatus>(
+            ie_allowed_pdu_session_status_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 
       case kIeiNasMessageContainer: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiNasMessageContainer);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_nas_message_container, buf, len, decoded_size, true)) ==
-            KEncodeDecodeError) {
+        NasMessageContainer ie_nas_message_container_tmp = {};
+        if ((decoded_result = ie_nas_message_container_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
           return KEncodeDecodeError;
-        }
+        decoded_size += decoded_result;
+        ie_nas_message_container =
+            std::optional<NasMessageContainer>(ie_nas_message_container_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

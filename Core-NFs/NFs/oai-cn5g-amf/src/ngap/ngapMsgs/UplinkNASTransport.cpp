@@ -22,7 +22,10 @@
 #include "UplinkNASTransport.hpp"
 
 #include "logger.hpp"
-#include "utils.hpp"
+
+extern "C" {
+#include "dynamic_memory_check.h"
+}
 
 namespace ngap {
 
@@ -56,7 +59,7 @@ void UplinkNASTransportMsg::setAmfUeNgapId(const unsigned long& id) {
   int ret = amfUeNgapId.encode(ie->value.choice.AMF_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode NGAP AMF_UE_NGAP_ID IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -77,7 +80,7 @@ void UplinkNASTransportMsg::setRanUeNgapId(const uint32_t& ran_ue_ngap_id) {
   int ret = ranUeNgapId.encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode NGAP RAN_UE_NGAP_ID IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -98,7 +101,7 @@ void UplinkNASTransportMsg::setNasPdu(const bstring& pdu) {
   int ret = nasPdu.encode(ie->value.choice.NAS_PDU);
   if (!ret) {
     Logger::ngap().error("Encode NGAP NAS_PDU IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -134,7 +137,7 @@ void UplinkNASTransportMsg::setUserLocationInfoNR(
       userLocationInformation.encode(ie->value.choice.UserLocationInformation);
   if (!ret) {
     Logger::ngap().error("Encode NGAP UserLocationInformation IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 

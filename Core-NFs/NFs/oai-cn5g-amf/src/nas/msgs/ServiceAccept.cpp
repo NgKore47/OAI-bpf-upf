@@ -21,8 +21,6 @@
 
 #include "ServiceAccept.hpp"
 
-#include "NasHelper.hpp"
-
 using namespace nas;
 
 //------------------------------------------------------------------------------
@@ -84,37 +82,84 @@ int ServiceAccept::Encode(uint8_t* buf, int len) {
   }
   encoded_size += encoded_ie_size;
 
-  // PDU Session Status
-  if ((encoded_ie_size =
-           NasHelper::Encode(ie_pdu_session_status, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_pdu_session_status.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available", PduSessionStatus::GetIeName().c_str());
+  } else {
+    encoded_ie_size = ie_pdu_session_status.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (encoded_ie_size != KEncodeDecodeError) {
+      encoded_size += encoded_ie_size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error", PduSessionStatus::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
-  // PDU session reactivation result
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_pdu_session_reactivation_result, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_pdu_session_reactivation_result.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available",
+        PduSessionReactivationResult::GetIeName().c_str());
+  } else {
+    encoded_ie_size = ie_pdu_session_reactivation_result.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (encoded_ie_size != KEncodeDecodeError) {
+      encoded_size += encoded_ie_size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error",
+          PduSessionReactivationResult::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
-  // PDU session reactivation result error cause
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_pdu_session_reactivation_result_error_cause, buf, len,
-           encoded_size)) == KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_pdu_session_reactivation_result_error_cause.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available",
+        PduSessionReactivationResultErrorCause::GetIeName().c_str());
+  } else {
+    encoded_ie_size =
+        ie_pdu_session_reactivation_result_error_cause.value().Encode(
+            buf + encoded_size, len - encoded_size);
+    if (encoded_ie_size != KEncodeDecodeError) {
+      encoded_size += encoded_ie_size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error",
+          PduSessionReactivationResultErrorCause::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
-  // EAP message
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_eap_message, buf, len, encoded_size)) == KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_eap_message.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available", EapMessage::GetIeName().c_str());
+  } else {
+    encoded_ie_size =
+        ie_eap_message.value().Encode(buf + encoded_size, len - encoded_size);
+    if (encoded_ie_size != KEncodeDecodeError) {
+      encoded_size += encoded_ie_size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error", EapMessage::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
-  // T3448 value
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_t3448_value, buf, len, encoded_size)) == KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_t3448_value.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available", GprsTimer3::GetIeName().c_str());
+  } else {
+    encoded_ie_size =
+        ie_t3448_value.value().Encode(buf + encoded_size, len - encoded_size);
+    if (encoded_ie_size != KEncodeDecodeError) {
+      encoded_size += encoded_ie_size;
+    } else {
+      Logger::nas_mm().debug(
+          "Encoding %s error", GprsTimer3::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
   Logger::nas_mm().debug(
@@ -125,16 +170,16 @@ int ServiceAccept::Encode(uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 int ServiceAccept::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationAccept message");
-  int decoded_size    = 0;
-  int decoded_ie_size = 0;
+  int decoded_size   = 0;
+  int decoded_result = 0;
 
   // Header
-  decoded_ie_size = NasMmPlainHeader::Decode(buf, len);
-  if (decoded_ie_size == KEncodeDecodeError) {
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
     Logger::nas_mm().error("Decoding NAS Header error");
     return KEncodeDecodeError;
   }
-  decoded_size += decoded_ie_size;
+  decoded_size += decoded_result;
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
 
   // Decode other IEs
@@ -146,11 +191,14 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
     switch (octet) {
       case kIeiPduSessionStatus: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiPduSessionStatus);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_pdu_session_status, buf, len, decoded_size, true)) ==
-            KEncodeDecodeError) {
-          return KEncodeDecodeError;
-        }
+        PduSessionStatus ie_pdu_session_status_tmp = {};
+        if ((decoded_result = ie_pdu_session_status_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
+        ie_pdu_session_status =
+            std::optional<PduSessionStatus>(ie_pdu_session_status_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -158,11 +206,16 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
       case kIeiPduSessionReactivationResult: {
         Logger::nas_mm().debug(
             "Decoding IEI 0x%x", kIeiPduSessionReactivationResult);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_pdu_session_reactivation_result, buf, len, decoded_size,
-                 true)) == KEncodeDecodeError) {
-          return KEncodeDecodeError;
-        }
+        PduSessionReactivationResult ie_pdu_session_reactivation_result_tmp =
+            {};
+        if ((decoded_result = ie_pdu_session_reactivation_result_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
+        ie_pdu_session_reactivation_result =
+            std::optional<PduSessionReactivationResult>(
+                ie_pdu_session_reactivation_result_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -170,33 +223,43 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
       case kIeiPduSessionReactivationResultErrorCause: {
         Logger::nas_mm().debug(
             "Decoding IEI 0x%x", kIeiPduSessionReactivationResultErrorCause);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_pdu_session_reactivation_result_error_cause, buf, len,
-                 decoded_size, true)) == KEncodeDecodeError) {
-          return KEncodeDecodeError;
-        }
+        PduSessionReactivationResultErrorCause
+            ie_pdu_session_reactivation_result_error_cause_tmp = {};
+        if ((decoded_result =
+                 ie_pdu_session_reactivation_result_error_cause_tmp.Decode(
+                     buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
+        ie_pdu_session_reactivation_result_error_cause =
+            std::optional<PduSessionReactivationResultErrorCause>(
+                ie_pdu_session_reactivation_result_error_cause_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_eap_message, buf, len, decoded_size, true)) ==
-            KEncodeDecodeError) {
-          return KEncodeDecodeError;
-        }
+        EapMessage ie_eap_message_tmp = {};
+        if ((decoded_result = ie_eap_message_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
+        ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 
       case kIeiGprsTimer3T3448: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer3T3448);
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_t3448_value, kIeiGprsTimer3T3448, buf, len, decoded_size,
-                 true)) == KEncodeDecodeError) {
-          return KEncodeDecodeError;
-        }
+        GprsTimer3 ie_t3448_value_tmp(kIeiGprsTimer3T3448);
+        if ((decoded_result = ie_t3448_value_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
+        ie_t3448_value = std::optional<GprsTimer3>(ie_t3448_value_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

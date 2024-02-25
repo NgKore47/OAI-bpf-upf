@@ -25,7 +25,6 @@
 #include "conversions.hpp"
 #include "logger.hpp"
 #include "string.hpp"
-#include "utils.hpp"
 
 extern "C" {
 #include "TLVDecoder.h"
@@ -84,11 +83,11 @@ void NetworkName::setTextString(const std::string& str) {
   // str = "Testing";
   // std::string packed_str;
   // util::sms_packing(str, packed_str);
-  // amf_conv::string_2_bstring(packed_str, text_string);
+  // conv::string_2_bstring(packed_str, text_string);
 
   uint8_t* packed_str = (uint8_t*) calloc(7, sizeof(uint8_t));
   if (!packed_str) {
-    utils::free_wrapper((void**) &packed_str);
+    free_wrapper((void**) &packed_str);
     return;
   }
   // Text string = "Testing"
@@ -101,7 +100,7 @@ void NetworkName::setTextString(const std::string& str) {
   packed_str[6] = 0x01;
 
   text_string = blk2bstr(packed_str, 7);
-  utils::free_wrapper((void**) &packed_str);
+  free_wrapper((void**) &packed_str);
   length = 1 + blength(text_string);
 }
 
@@ -141,7 +140,7 @@ int NetworkName::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NetworkName::Decode(uint8_t* buf, int len, bool is_option) {
+int NetworkName::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
   // TODO
   return -1;
 }

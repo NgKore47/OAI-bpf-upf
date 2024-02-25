@@ -37,9 +37,7 @@ void SubscriptionsCollectionDocumentApi::setupRoutes() {
   using namespace Pistache::Rest;
 
   Routes::Post(
-      *router,
-      base + amf_cfg.sbi.api_version.value_or(DEFAULT_SBI_API_VERSION) +
-          "/subscriptions",
+      *router, base + amf_cfg.sbi_api_version + "/subscriptions",
       Routes::bind(
           &SubscriptionsCollectionDocumentApi::
               a_mf_status_change_subscribe_handler,

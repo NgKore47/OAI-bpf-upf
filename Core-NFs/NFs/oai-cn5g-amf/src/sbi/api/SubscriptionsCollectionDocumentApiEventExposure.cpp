@@ -35,9 +35,7 @@ void SubscriptionsCollectionDocumentApiEventExposure::setupRoutes() {
   using namespace Pistache::Rest;
 
   Routes::Post(
-      *router,
-      base + amf_cfg.sbi.api_version.value_or(DEFAULT_SBI_API_VERSION) +
-          "/subscriptions",
+      *router, base + amf_cfg.sbi_api_version + "/subscriptions",
       Routes::bind(
           &SubscriptionsCollectionDocumentApiEventExposure::
               create_subscription_handler,

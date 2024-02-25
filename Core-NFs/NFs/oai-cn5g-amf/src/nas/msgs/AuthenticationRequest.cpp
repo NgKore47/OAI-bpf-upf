@@ -21,8 +21,6 @@
 
 #include "AuthenticationRequest.hpp"
 
-#include "NasHelper.hpp"
-
 using namespace nas;
 
 //------------------------------------------------------------------------------
@@ -88,38 +86,76 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   }
   encoded_size += encoded_ie_size;
 
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_ng_ksi, buf, len, encoded_size)) == KEncodeDecodeError) {
+  int size = ie_ng_ksi.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
+    encoded_size += size;
+  } else {
+    Logger::nas_mm().error(
+        "Encoding %s error", NasKeySetIdentifier::GetIeName().c_str());
     return KEncodeDecodeError;
   }
   // Spare half octet
-  if (encoded_ie_size == 0)
-    encoded_size++;  // 1/2 octet + 1/2 octet from ie_ng_ksi
+  encoded_size++;  // 1/2 octet + 1/2 octet from ie_ng_ksi
 
   // ABBA
-  if ((encoded_ie_size = NasHelper::Encode(ie_abba, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
+  size = ie_abba.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
+    encoded_size += size;
+  } else {
+    Logger::nas_mm().error("Encoding %s error", Abba::GetIeName().c_str());
     return KEncodeDecodeError;
   }
 
   // Authentication parameter RAND
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_authentication_parameter_rand, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_authentication_parameter_rand.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available",
+        AuthenticationParameterRand::GetIeName().c_str());
+  } else {
+    size = ie_authentication_parameter_rand.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
+      encoded_size += size;
+    } else {
+      Logger::nas_mm().error(
+          "Encoding %s error",
+          AuthenticationParameterRand::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
   // Authentication parameter AUTN
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_authentication_parameter_autn, buf, len, encoded_size)) ==
-      KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_authentication_parameter_autn.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available",
+        AuthenticationParameterAutn::GetIeName().c_str());
+  } else {
+    size = ie_authentication_parameter_autn.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
+      encoded_size += size;
+    } else {
+      Logger::nas_mm().error(
+          "Encoding %s error",
+          AuthenticationParameterAutn::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
   // EAP message
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_eap_message, buf, len, encoded_size)) == KEncodeDecodeError) {
-    return KEncodeDecodeError;
+  if (!ie_eap_message.has_value()) {
+    Logger::nas_mm().debug(
+        "IE %s is not available", EapMessage::GetIeName().c_str());
+  } else {
+    size =
+        ie_eap_message.value().Encode(buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
+      encoded_size += size;
+    } else {
+      Logger::nas_mm().error(
+          "Encoding %s error", EapMessage::GetIeName().c_str());
+      return KEncodeDecodeError;
+    }
   }
 
   Logger::nas_mm().debug(
@@ -130,31 +166,38 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 int AuthenticationRequest::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationReject message");
-  int decoded_size    = 0;
-  int decoded_ie_size = 0;
+  int decoded_size   = 0;
+  int decoded_result = 0;
 
   // Header
-  decoded_ie_size = NasMmPlainHeader::Decode(buf, len);
-  if (decoded_ie_size == KEncodeDecodeError) {
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
     Logger::nas_mm().error("Decoding NAS Header error");
     return KEncodeDecodeError;
   }
-  decoded_size += decoded_ie_size;
+  decoded_size += decoded_result;
 
   // NgKSI
-  if ((decoded_ie_size = NasHelper::Decode(
-           ie_ng_ksi, buf, len, decoded_size, false, false)) ==
-      KEncodeDecodeError) {
+  decoded_result = ie_ng_ksi.Decode(
+      buf + decoded_size, len - decoded_size, false,
+      false);  // length 1/2, low position
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", NasKeySetIdentifier::GetIeName().c_str());
     return KEncodeDecodeError;
   }
-  if (decoded_ie_size == 0)
-    decoded_size++;  // 1/2 octet from ie_ng_ksi, 1/2 from Spare half octet
+  decoded_size += decoded_result;
+  decoded_size++;  // 1/2 octet from ie_ng_ksi, 1/2 from Spare half octet
 
   // ABBA
-  if ((decoded_ie_size = NasHelper::Decode(
-           ie_abba, buf, len, decoded_size, false)) == KEncodeDecodeError) {
+  decoded_result =
+      ie_abba.Decode(buf + decoded_size, len - decoded_size, false);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decoding %s error", Abba::GetIeName().c_str());
     return KEncodeDecodeError;
   }
+  decoded_size += decoded_result;
+
   Logger::nas_mm().debug("Decoded_size %d", decoded_size);
 
   // Decode other IEs
@@ -162,34 +205,46 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
   DECODE_U8_VALUE(buf + decoded_size, octet);
   Logger::nas_mm().debug("First option IEI 0x%x", octet);
   while ((octet != 0x0)) {
-    Logger::nas_mm().debug("Decoding IEI 0x%x", octet);
     switch (octet) {
       case kIeiAuthenticationParameterRand: {
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_authentication_parameter_rand, buf, len, decoded_size,
-                 true)) == KEncodeDecodeError) {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x", kIeiAuthenticationParameterRand);
+        AuthenticationParameterRand ie_authentication_parameter_rand_tmp = {};
+        if ((decoded_result = ie_authentication_parameter_rand_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
           return KEncodeDecodeError;
-        }
+        decoded_size += decoded_result;
+        ie_authentication_parameter_rand =
+            std::optional<AuthenticationParameterRand>(
+                ie_authentication_parameter_rand_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
 
       case kIeiAuthenticationParameterAutn: {
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_authentication_parameter_autn, buf, len, decoded_size,
-                 true)) == KEncodeDecodeError) {
+        AuthenticationParameterAutn ie_authentication_parameter_autn_tmp = {};
+        if ((decoded_result = ie_authentication_parameter_autn_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
           return KEncodeDecodeError;
-        }
+        decoded_size += decoded_result;
+        ie_authentication_parameter_autn =
+            std::optional<AuthenticationParameterAutn>(
+                ie_authentication_parameter_autn_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
 
       case kIeiEapMessage: {
-        if ((decoded_ie_size = NasHelper::Decode(
-                 ie_eap_message, buf, len, decoded_size, true)) ==
-            KEncodeDecodeError) {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
+        EapMessage ie_eap_message_tmp = {};
+        if ((decoded_result = ie_eap_message_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
           return KEncodeDecodeError;
-        }
+        decoded_size += decoded_result;
+        ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
         DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

@@ -29,6 +29,7 @@
 #include "logger.hpp"
 #include "string.hpp"
 
+using namespace std;
 using namespace amf_application;
 
 //------------------------------------------------------------------------------
@@ -390,8 +391,10 @@ void amf_profile::to_json(nlohmann::json& data) const {
   // guamiList
   data["amfInfo"]["guamiList"] = nlohmann::json::array();
   for (auto guami : amf_info.guami_list) {
-    nlohmann::json tmp   = {};
-    tmp["amfId"]         = guami.amf_id;
+    nlohmann::json tmp     = {};
+    std::string amf_id_str = {};
+    conv::int_to_string_hex(guami.amf_id, amf_id_str, AMF_ID_LENGTH);
+    tmp["amfId"]         = amf_id_str;
     tmp["plmnId"]["mnc"] = guami.plmn.mnc;
     tmp["plmnId"]["mcc"] = guami.plmn.mcc;
     data["amfInfo"]["guamiList"].push_back(tmp);
@@ -415,10 +418,10 @@ void amf_profile::from_json(const nlohmann::json& data) {
     nlohmann::json guami_list = data["amfInfo"]["guamiList"];
 
     for (auto it : guami_list) {
-      guami_t guami = {};
+      guami_5g_t guami = {};
 
       if (it.find("amfId") != it.end()) {
-        guami.amf_id = it["amfId"].get<std::string>();
+        conv::string_hex_to_int(it["amfId"].get<std::string>(), guami.amf_id);
       }
       if (it.find("plmnId") != it.end()) {
         nlohmann::json plmn = it["plmnId"];

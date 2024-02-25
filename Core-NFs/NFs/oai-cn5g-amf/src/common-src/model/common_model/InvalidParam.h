@@ -32,9 +32,6 @@ class InvalidParam {
   InvalidParam();
   virtual ~InvalidParam() = default;
 
-  InvalidParam(std::string const& param);
-  InvalidParam(std::string const& param, std::string const& reason);
-
   /// <summary>
   /// Validate the current data in the model. Throws a ValidationException on
   /// failure.

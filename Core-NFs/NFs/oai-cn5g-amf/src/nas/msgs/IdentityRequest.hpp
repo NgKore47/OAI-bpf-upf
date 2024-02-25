@@ -41,7 +41,6 @@ class IdentityRequest : public NasMmPlainHeader {
 
  public:
   _5gsIdentityType ie_5gs_identity_type;  // Mandatory
-  // Spare half octet (Mandatory)
 };
 
 }  // namespace nas

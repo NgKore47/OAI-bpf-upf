@@ -29,7 +29,6 @@
 #include "PlmnSupportList.hpp"
 #include "RelativeAmfCapacity.hpp"
 #include "ServedGuamiList.hpp"
-#include "UERetentionInformation.hpp"
 
 extern "C" {
 #include "Ngap_NGSetupResponse.h"
@@ -56,10 +55,6 @@ class NGSetupResponseMsg : public NgapMessage {
   void setPlmnSupportList(std::vector<PlmnSliceSupport_t> list);
   bool getPlmnSupportList(std::vector<PlmnSliceSupport_t>& list);
 
-  void setUERetentionInformation(const UERetentionInformation& value);
-  void getUERetentionInformation(
-      std::optional<UERetentionInformation>& value) const;
-
   bool decode(Ngap_NGAP_PDU_t* ngapMsgPdu) override;
 
  private:
@@ -70,7 +65,7 @@ class NGSetupResponseMsg : public NgapMessage {
   RelativeAmfCapacity relativeAmfCapacity;  // Mandatory
   PlmnSupportList plmnSupportList;          // Mandatory
   // TODO: CriticalityDiagnostics //Optional
-  std::optional<UERetentionInformation> ueRetentionInformation;  // Optional
+  // TODO: UE Retention Information //Optional
   // TODO:IAB Supported (Optional, Rel 16.14.0)
   // TODO:Extended AMF Name (Optional, Rel 16.14.0)
 };

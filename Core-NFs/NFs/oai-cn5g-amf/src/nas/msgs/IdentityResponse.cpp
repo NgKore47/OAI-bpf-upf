@@ -21,8 +21,6 @@
 
 #include "IdentityResponse.hpp"
 
-#include "NasHelper.hpp"
-
 using namespace nas;
 
 //------------------------------------------------------------------------------
@@ -96,8 +94,12 @@ int IdentityResponse::Encode(uint8_t* buf, int len) {
   encoded_size += encoded_ie_size;
 
   // Mobile Identity
-  if ((encoded_ie_size = NasHelper::Encode(
-           ie_mobile_identity, buf, len, encoded_size)) == KEncodeDecodeError) {
+  int size = ie_mobile_identity.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
+    encoded_size += size;
+  } else {
+    Logger::nas_mm().error(
+        "Encoding %s error", _5gsMobileIdentity::GetIeName().c_str());
     return KEncodeDecodeError;
   }
 
@@ -110,23 +112,26 @@ int IdentityResponse::Encode(uint8_t* buf, int len) {
 int IdentityResponse::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding IdentityResponse message");
 
-  int decoded_size    = 0;
-  int decoded_ie_size = 0;
+  int decoded_size   = 0;
+  int decoded_result = 0;
 
   // Header
-  decoded_ie_size = NasMmPlainHeader::Decode(buf, len);
-  if (decoded_ie_size == KEncodeDecodeError) {
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
     Logger::nas_mm().error("Decoding NAS Header error");
     return KEncodeDecodeError;
   }
-  decoded_size += decoded_ie_size;
+  decoded_size += decoded_result;
 
   // Mobile Identity
-  if ((decoded_ie_size = NasHelper::Decode(
-           ie_mobile_identity, buf, len, decoded_size, false)) ==
-      KEncodeDecodeError) {
+  decoded_result =
+      ie_mobile_identity.Decode(buf + decoded_size, len - decoded_size, false);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", _5gsMobileIdentity::GetIeName().c_str());
     return KEncodeDecodeError;
   }
+  decoded_size += decoded_result;
 
   Logger::nas_mm().debug(
       "Decoded IdentityResponse message len (%d)", decoded_size);

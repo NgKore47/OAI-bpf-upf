@@ -57,10 +57,6 @@ class InstallationStatus():
         self.lttngStatus=False
         self.cppjwtToBeInstalled=False
         self.cppjwtStatus=False
-        self.libbpfToBeInstalled=False
-        self.libbpfStatus=False
-        self.bpftoolToBeInstalled=False
-        self.bpftoolStatus=False
 
 class BuildStatus():
     def __init__(self):
@@ -92,7 +88,7 @@ def build_summary(args, nfName, ubuntuVersion, rhelVersion):
 def initial_base_preparation(args, nfName):
     cwd = os.getcwd()
     details = ''
-    variants = ['ubuntu', 'rhel']
+    variants = ['docker', 'podman']
     messages = ['', '']
     idx = 0
     for variant in variants:
@@ -132,7 +128,7 @@ def initial_base_preparation(args, nfName):
 def nf_base_image_creation(args, nfName):
     cwd = os.getcwd()
     details = ''
-    variants = ['ubuntu', 'rhel']
+    variants = ['docker', 'podman']
     messages = ['', '']
     idx = 0
     for variant in variants:
@@ -196,14 +192,6 @@ def nf_base_image_creation(args, nfName):
                             status.lttngToBeInstalled = True
                         if re.search('lttng installation complete', line) is not None and status.lttngToBeInstalled:
                             status.lttngStatus = True
-                        if re.search('Starting to install libbpf', line) is not None:
-                            status.libbpfToBeInstalled = True
-                        if re.search('libbpf installation complete', line) is not None and status.libbpfToBeInstalled:
-                            status.libbpfStatus = True
-                        if re.search('Starting to install bpftool', line) is not None:
-                            status.bpftoolToBeInstalled = True
-                        if re.search('bpftool installation complete', line) is not None and status.bpftoolToBeInstalled:
-                            status.bpftoolStatus = True
             if status.fStatus:
                 messages[idx] = f'OK:\n -- ./build_{nfName} --install-deps --force'
                 if status.isCached:
@@ -255,16 +243,6 @@ def nf_base_image_creation(args, nfName):
                         messages[idx] += '\n   * lttng Installation: OK'
                     else:
                         messages[idx] += '\n   * lttng Installation: KO'
-                if status.libbpfToBeInstalled:
-                    if status.libbpfStatus:
-                        messages[idx] += '\n   * libbpf Installation: OK'
-                    else:
-                        messages[idx] += '\n   * libbpf Installation: KO'
-                if status.bpftoolToBeInstalled:
-                    if status.bpftoolStatus:
-                        messages[idx] += '\n   * bpftool Installation: OK'
-                    else:
-                        messages[idx] += '\n   * bpftool Installation: KO'
         else:
             messages[idx] = f'KO:\n -- logfile ({logFileName}) not found'
         idx += 1
@@ -275,7 +253,7 @@ def nf_build_log_check(nfName):
     cwd = os.getcwd()
     details = ''
     extraDetails = ''
-    variants = ['ubuntu', 'rhel']
+    variants = ['docker', 'podman']
     messages = ['', '', '', '']
     idx = 0
     errorMessages = []
@@ -337,7 +315,7 @@ def nf_build_log_check(nfName):
 def nf_target_image_size(nfName):
     cwd = os.getcwd()
     details = ''
-    variants = ['ubuntu', 'rhel']
+    variants = ['docker', 'podman']
     messages = ['', '']
     idx = 0
     imagesStatus = True
@@ -346,12 +324,12 @@ def nf_target_image_size(nfName):
         if os.path.isfile(f'{cwd}/archives/{logFileName}'):
             status = False
             imageTag = 'notAcorrectTagForTheMoment'
-            if variant == 'ubuntu':
+            if variant == 'docker':
                 section_start_pattern = f'naming to docker.io/library/oai-{nfName}:'
-                section_end_pattern = f'OAI-{nfName.upper()} UBUNTU IMAGE BUILD'
+                section_end_pattern = f'OAI-{nfName.upper()} DOCKER IMAGE BUILD'
             else:
-                section_start_pattern = f'COMMIT temp.builder.openshift.io/oaicicd-core/{nfName}'
-                section_end_pattern = f'OAI-{nfName.upper()} RHEL IMAGE BUILD'
+                section_start_pattern = f'COMMIT oai-{nfName}:'
+                section_end_pattern = f'OAI-{nfName.upper()} PODMAN RHEL8 IMAGE BUILD'
             section_status = False
             with open(f'{cwd}/archives/{logFileName}', 'r') as logfile:
                 for line in logfile:
@@ -368,14 +346,9 @@ def nf_target_image_size(nfName):
                             result = re.search('ago  *([0-9A-Z ]+)', line)
                             if result is not None:
                                 size = result.group(1)
-                                if variant == 'ubuntu':
+                                if variant == 'docker':
                                     size = re.sub('MB', ' MB', size)
                                 status = True
-                        result = re.search('Image Size:\\t*([0-9\.]+)MB', line)
-                        if result is not None and not status:
-                            fSize = float(result.group(1)) * 2.6
-                            size = f'~ {fSize:.1f} MB'
-                            status = True
             if status:
                 messages[idx] = f'OK: {size}'
             else:

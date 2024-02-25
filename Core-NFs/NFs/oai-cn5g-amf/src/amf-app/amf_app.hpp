@@ -28,8 +28,6 @@
 #include <shared_mutex>
 #include <string>
 
-#include "N1MessageClass_anyOf.h"
-#include "N2InformationClass_anyOf.h"
 #include "ProblemDetails.h"
 #include "UeN1N2InfoSubscriptionCreateData.h"
 #include "amf_config.hpp"
@@ -41,6 +39,8 @@
 #include "itti_msg_sbi.hpp"
 #include "ue_context.hpp"
 #include "uint_generator.hpp"
+#include "N1MessageClass_anyOf.h"
+#include "N2InformationClass_anyOf.h"
 
 using namespace oai::config;
 
@@ -77,6 +77,14 @@ class amf_app {
 
   std::map<std::string, std::shared_ptr<ue_context>> supi2ue_ctx;
   mutable std::shared_mutex m_supi2ue_ctx;
+
+  mutable std::shared_mutex m_curl_handle_responses_smf;
+  std::map<uint32_t, boost::shared_ptr<boost::promise<uint32_t>>>
+      curl_handle_responses_smf;
+
+  mutable std::shared_mutex m_curl_handle_responses_n2_sm;
+  std::map<uint32_t, boost::shared_ptr<boost::promise<std::string>>>
+      curl_handle_responses_n2_sm;
 
   mutable std::shared_mutex m_curl_handle_responses_sbi;
   std::map<uint32_t, boost::shared_ptr<boost::promise<nlohmann::json>>>
@@ -250,7 +258,7 @@ class amf_app {
    * @param [const std::string&] supi: UE SUPI
    * @return true if UE context exist and not null, otherwise false
    */
-  bool is_supi_2_ue_context(const std::string& supi) const;
+  bool is_supi_2_ue_context(const string& supi) const;
 
   /*
    * Get UE context associated with a SUPI
@@ -268,7 +276,7 @@ class amf_app {
    * @return void
    */
   void set_supi_2_ue_context(
-      const std::string& supi, const std::shared_ptr<ue_context>& uc);
+      const string& supi, const std::shared_ptr<ue_context>& uc);
 
   /*
    * Find a PDU Session Context associated with a SUPI and a PDU Session ID
@@ -279,7 +287,7 @@ class amf_app {
    * @return true if found, otherwise false
    */
   bool find_pdu_session_context(
-      const std::string& supi, const std::uint8_t pdu_session_id,
+      const string& supi, const std::uint8_t pdu_session_id,
       std::shared_ptr<pdu_session_context>& psc);
 
   /*
@@ -290,7 +298,7 @@ class amf_app {
    * @return true if found, otherwise false
    */
   bool get_pdu_sessions_context(
-      const std::string& supi,
+      const string& supi,
       std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx);
 
   /*
@@ -302,7 +310,7 @@ class amf_app {
    * @return true if success, otherwise false
    */
   bool update_pdu_sessions_context(
-      const std::string& supi, const uint8_t& pdu_session_id,
+      const string& supi, const uint8_t& pdu_session_id,
       const oai::amf::model::SmContextStatusNotification& statusNotification);
 
   /*
@@ -503,6 +511,25 @@ class amf_app {
   /*
    * Store the promise
    * @param [const uint32_t] pid: promise id
+   * @param [const boost::shared_ptr<boost::promise<uint32_t>>&] p: promise
+   * @return void
+   */
+  void add_promise(
+      const uint32_t pid, const boost::shared_ptr<boost::promise<uint32_t>>& p);
+
+  /*
+   * Store the promise
+   * @param [const uint32_t] pid: promise id
+   * @param [const boost::shared_ptr<boost::promise<std::string>>&] p: promise
+   * @return void
+   */
+  void add_promise(
+      const uint32_t pid,
+      const boost::shared_ptr<boost::promise<std::string>>& p);
+
+  /*
+   * Store the promise
+   * @param [const uint32_t] pid: promise id
    * @param [const boost::shared_ptr<boost::promise<nlohmann::json>>&] p:
    * promise
    * @return void
@@ -526,6 +553,22 @@ class amf_app {
   static uint64_t generate_promise_id() {
     return util::uint_uid_generator<uint64_t>::get_instance().get_uid();
   }
+
+  /*
+   * Trigger the response from API server
+   * @param [const uint32_t] pid: promise id
+   * @param [const uint32_t] http_code: result for the corresponding promise
+   * @return void
+   */
+  void trigger_process_response(const uint32_t pid, const uint32_t http_code);
+
+  /*
+   * Trigger the response from API server
+   * @param [const uint32_t] pid: promise id
+   * @param [const std::string] n2_sm: result for the corresponding promise
+   * @return void
+   */
+  void trigger_process_response(const uint32_t pid, const std::string& n2_sm);
 
   /*
    * Trigger the response from API server

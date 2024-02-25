@@ -27,8 +27,6 @@
 #include <sstream>
 #include <string>
 
-#include "bstrlib.h"
-
 constexpr uint8_t kMccMncLength           = 3;
 constexpr uint32_t KFutureStatusTimeoutMs = 1000;
 
@@ -68,8 +66,5 @@ class utils {
       return;
     }
   }
-
-  static void free_wrapper(void** ptr) __attribute__((hot));
-  static void bdestroy_wrapper(bstring* b);
 };
 #endif /* FILE_UTILS_HPP_SEEN */

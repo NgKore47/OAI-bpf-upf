@@ -44,7 +44,7 @@ nfs:
   amf:
     host: oai-amf
     sbi:
-      port: 8080
+      port: 8082
       api_version: v1
       interface_name: eth0
     n2:
@@ -53,7 +53,7 @@ nfs:
   smf:
     host: oai-smf
     sbi:
-      port: 8080
+      port: 8081
       api_version: v1
       interface_name: eth0
     n4:
@@ -74,7 +74,7 @@ nfs:
   ausf:
     host: oai-ausf
     sbi:
-      port: 8080
+      port: 8083
       api_version: v1
       interface_name: eth0
   nrf:
@@ -92,7 +92,7 @@ nfs:
   nssf:
     host: oai-nssf
     sbi:
-      port: 8080
+      port: 8084
       api_version: v1
       interface_name: eth0
 
@@ -120,8 +120,8 @@ amf:
   statistics_timer_interval: 20  #in seconds
   emergency_support: false
   served_guami_list:
-    - mcc: 208
-      mnc: 95
+    - mcc: 001
+      mnc: 01
       amf_region_id: 01
       amf_set_id: 001
       amf_pointer: 01
@@ -131,15 +131,15 @@ amf:
       amf_set_id: 001
       amf_pointer: 01
   plmn_support_list:
-    - mcc: 208
-      mnc: 95
-      tac: 0xa000
+    - mcc: 001
+      mnc: 01
+      tac: 1
       nssai:
         - sst: 1
         - sst: 1
           sd: 000001 # in hex
-        - sst: 222
-          sd: 00007B # in hex
+        - sst: 1
+          sd: 000001 # in hex
   supported_integrity_algorithms:
     - "NIA0"
     - "NIA1"
@@ -156,7 +156,7 @@ smf:
     use_local_pcc_rules: yes # Use infos from local_pcc_rules or from PCF
   # we resolve from NRF, this is just to configure usage_reporting
   upfs:
-    - host: oai-spgwu
+    - host: oai-upf
       config:
         enable_usage_reporting: no
   ue_dns:
@@ -185,8 +185,8 @@ smf:
         session_ambr_ul: "100Mbps"
         session_ambr_dl: "200Mbps"
     - single_nssai:
-        sst: 222
-        sd: 123
+        sst: 1
+        sd: 1
       dnn: "default"
       qos_profile:
         5qi: 9

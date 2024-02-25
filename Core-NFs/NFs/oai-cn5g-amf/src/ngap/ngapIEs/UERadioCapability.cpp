@@ -21,7 +21,7 @@
 
 #include "UERadioCapability.hpp"
 
-#include "amf_conversions.hpp"
+#include "conversions.hpp"
 
 namespace ngap {
 
@@ -31,11 +31,11 @@ UERadioCapability::UERadioCapability() {}
 /*
 UERadioCapability::UERadioCapability(const OCTET_STRING_t& capability) {
           if (!capability.buf) return;
-          amf_conv::bstring_2_octet_string(ue_radio_capability_, capability);
+          conv::bstring_2_octet_string(ue_radio_capability_, capability);
 }
 
 UERadioCapability::UERadioCapability(const bstring& capability) {
-        amf_conv::bstring_2_octet_string(capability, ue_radio_capability_);
+        conv::bstring_2_octet_string(capability, ue_radio_capability_);
 }
 */
 //------------------------------------------------------------------------------
@@ -43,27 +43,25 @@ UERadioCapability::~UERadioCapability() {}
 
 //------------------------------------------------------------------------------
 bool UERadioCapability::encode(Ngap_UERadioCapability_t& ueRadioCapability) {
-  return amf_conv::bstring_2_octet_string(
-      ue_radio_capability_, ueRadioCapability);
+  return conv::bstring_2_octet_string(ue_radio_capability_, ueRadioCapability);
 }
 
 //------------------------------------------------------------------------------
 bool UERadioCapability::decode(
     const Ngap_UERadioCapability_t& ueRadioCapability) {
   if (!ueRadioCapability.buf) return false;
-  return amf_conv::octet_string_2_bstring(
-      ueRadioCapability, ue_radio_capability_);
+  return conv::octet_string_2_bstring(ueRadioCapability, ue_radio_capability_);
 }
 
 //------------------------------------------------------------------------------
 bool UERadioCapability::set(const OCTET_STRING_t& capability) {
-  amf_conv::octet_string_2_bstring(capability, ue_radio_capability_);
+  conv::octet_string_2_bstring(capability, ue_radio_capability_);
   return true;
 }
 
 //------------------------------------------------------------------------------
 bool UERadioCapability::get(OCTET_STRING_t& capability) {
-  amf_conv::bstring_2_octet_string(ue_radio_capability_, capability);
+  conv::bstring_2_octet_string(ue_radio_capability_, capability);
   return true;
 }
 

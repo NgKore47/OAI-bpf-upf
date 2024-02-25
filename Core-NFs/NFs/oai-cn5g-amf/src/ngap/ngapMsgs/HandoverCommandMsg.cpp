@@ -21,13 +21,15 @@
 
 #include "HandoverCommandMsg.hpp"
 
-#include "amf_conversions.hpp"
+#include "conversions.hpp"
 #include "logger.hpp"
-#include "utils.hpp"
 
 extern "C" {
 #include "Ngap_PDUSessionResourceHandoverItem.h"
+#include "dynamic_memory_check.h"
 }
+
+using namespace std;
 
 namespace ngap {
 
@@ -67,7 +69,7 @@ void HandoverCommandMsg::setAmfUeNgapId(const unsigned long& id) {
   int ret = amfUeNgapId.encode(ie->value.choice.AMF_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode AMF_UE_NGAP_ID IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -88,7 +90,7 @@ void HandoverCommandMsg::setRanUeNgapId(const uint32_t& ran_ue_ngap_id) {
   int ret = ranUeNgapId.encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -114,7 +116,7 @@ void HandoverCommandMsg::setHandoverType(const long& type) {
 void HandoverCommandMsg::setNASSecurityParametersFromNGRAN(
     const OCTET_STRING_t& nasSecurityParameters) {
   Ngap_NASSecurityParametersFromNGRAN_t tmp = {};
-  amf_conv::octet_string_copy(tmp, nasSecurityParameters);
+  conv::octet_string_copy(tmp, nasSecurityParameters);
   nASSecurityParametersFromNGRAN =
       std::optional<Ngap_NASSecurityParametersFromNGRAN_t>(tmp);
 
@@ -124,10 +126,10 @@ void HandoverCommandMsg::setNASSecurityParametersFromNGRAN(
   ie->criticality = Ngap_Criticality_reject;
   ie->value.present =
       Ngap_HandoverCommandIEs__value_PR_NASSecurityParametersFromNGRAN;
-  if (!amf_conv::octet_string_copy(
+  if (!conv::octet_string_copy(
           ie->value.choice.NASSecurityParametersFromNGRAN,
           nASSecurityParametersFromNGRAN.value())) {
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -140,7 +142,7 @@ void HandoverCommandMsg::setNASSecurityParametersFromNGRAN(
 bool HandoverCommandMsg::getNASSecurityParametersFromNGRAN(
     OCTET_STRING_t& nasSecurityParameters) {
   if (!nASSecurityParametersFromNGRAN.has_value()) return false;
-  return amf_conv::octet_string_copy(
+  return conv::octet_string_copy(
       nasSecurityParameters, nASSecurityParametersFromNGRAN.value());
 }
 
@@ -161,7 +163,7 @@ void HandoverCommandMsg::setPduSessionResourceHandoverList(
   if (!pDUSessionResourceHandoverList.value().encode(
           ie->value.choice.PDUSessionResourceHandoverList)) {
     Logger::ngap().error("Encode PDUSessionResourceHandoverListItem IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -198,7 +200,7 @@ void HandoverCommandMsg::setPDUSessionResourceToReleaseListHOCmd(
           ie->value.choice.PDUSessionResourceToReleaseListHOCmd)) {
     Logger::ngap().error(
         "Encode PDUSessionResourceToReleaseListHOCmd IE error");
-    utils::free_wrapper((void**) &ie);
+    free_wrapper((void**) &ie);
     return;
   }
 
@@ -219,8 +221,7 @@ bool HandoverCommandMsg::getPDUSessionResourceToReleaseListHOCmd(
 //------------------------------------------------------------------------------
 void HandoverCommandMsg::setTargetToSource_TransparentContainer(
     const OCTET_STRING_t& targetTosource) {
-  amf_conv::octet_string_copy(
-      targetToSource_TransparentContainer, targetTosource);
+  conv::octet_string_copy(targetToSource_TransparentContainer, targetTosource);
 
   Ngap_HandoverCommandIEs_t* ie =
       (Ngap_HandoverCommandIEs_t*) calloc(1, sizeof(Ngap_HandoverCommandIEs_t));
@@ -228,7 +229,7 @@ void HandoverCommandMsg::setTargetToSource_TransparentContainer(
   ie->criticality = Ngap_Criticality_reject;
   ie->value.present =
       Ngap_HandoverCommandIEs__value_PR_TargetToSource_TransparentContainer;
-  amf_conv::octet_string_copy(
+  conv::octet_string_copy(
       ie->value.choice.TargetToSource_TransparentContainer, targetTosource);
 
   int ret = ASN_SEQUENCE_ADD(&handoverCommandIEs->protocolIEs.list, ie);

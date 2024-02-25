@@ -28,13 +28,15 @@
 #include <vector>
 
 #include "3gpp_23.003.h"
-#include <fmt/format.h>
+#include "spdlog/fmt/fmt.h"
 
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
 #include "bstrlib.h"
 }
+
+using namespace std;
 
 namespace nas {
 
@@ -98,8 +100,8 @@ typedef struct IMEISV_s {
 } IMEISV_t;
 
 typedef struct {
-  std::string mcc;
-  std::string mnc;
+  string mcc;
+  string mnc;
 } nas_plmn_t;
 
 typedef struct {
@@ -107,13 +109,6 @@ typedef struct {
   std::vector<nas_plmn_t> plmn_list;
   std::vector<uint32_t> tac_list;
 } p_tai_t;
-
-typedef struct {
-  uint8_t allowed_type;
-  uint8_t type;
-  std::vector<nas_plmn_t> plmn_list;
-  std::vector<uint32_t> tac_list;
-} service_area_list_ie_t;
 
 // 5G-GUTI
 typedef struct _5G_GUTI_s {

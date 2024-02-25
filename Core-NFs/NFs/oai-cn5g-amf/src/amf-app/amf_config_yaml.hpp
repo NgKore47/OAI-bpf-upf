@@ -19,11 +19,10 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _AMF_CONFIG_YAML_H_
-#define _AMF_CONFIG_YAML_H_
+#pragma once
 
-#include "amf_config.hpp"
 #include "config.hpp"
+#include "amf_config.hpp"
 
 constexpr auto AMF_CONFIG_INSTANCE_ID         = "instance_id";
 constexpr auto AMF_CONFIG_INSTANCE_ID_LABEL   = "Instance ID";
@@ -296,5 +295,3 @@ class amf_config_yaml : public config {
   void pre_process();
 };
 }  // namespace oai::config
-
-#endif
