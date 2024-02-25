@@ -17,5 +17,5 @@ mysql:
 	sudo systemctl enable mysql
 
 UERANSIM:
-	cd UERANSIM-OAI && make
+	cd UERANSIM-OAI && rm -rf ./cmake-build-release/* && make
 	@echo "UERASANIM build completed successfully"
