@@ -16,7 +16,7 @@ mysql:
 	sudo systemctl start mysql
 	sudo systemctl enable mysql
 
-	/bin/sh -c ./setup/database.sh
+	/bin/sh -c ./setup/datasetup.sh
 
 UERANSIM:
 	cd UERANSIM-OAI && rm -rf ./cmake-build-release/* && make
