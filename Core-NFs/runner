@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Function to run command in background and store its PID
+run_command() {
+    command="$1"
+    output_file="$2"
+
+    # Run command in background and redirect both stdout and stderr to output file
+    nohup $command > "$output_file" 2>&1 &
+
+    # Capture PID
+    pid=$!
+
+    # Store PID in output file
+    echo $pid > $output_file
+
+    echo "Command '$command' started with PID $pid"
+}
+
+# Function to handle SIGINT signal (Ctrl+C)
+cleanup() {
+    echo "Received SIGINT signal (Ctrl+C). Exiting..."
+    kill_all_processes
+    exit 0
+}
+
+# Function to handle SIGTERM signal (signal number 15)
+kill_all_processes() {
+    echo "Killing all background processes..."
+    for pid_file in pid_file*.txt; do
+        while read -r pid; do
+            kill "$pid"
+        done < "$pid_file"
+    done
+}
+
+# Register cleanup function to handle SIGINT
+trap cleanup SIGINT
+
+# Run commands in background and store PIDs in pids.txt
+run_command "sudo nrf -c upf.yaml -o" "pid_file1.txt" &
+run_command "sudo amf -c upf.yaml -o" "pid_file2.txt" &
+run_command "sudo smf -c upf.yaml -o" "pid_file3.txt" &
+run_command "sudo ausf -c upf.yaml -o" "pid_file3.txt" &
+run_command "sudo udm -c upf.yaml -o" "pid_file3.txt" &
+run_command "sudo udr -c upf.yaml -o" "pid_file3.txt" &
+#run_command "sudo smf -c upf.yaml -o" "pid_file3.txt" &
+# Add more commands as needed
+
+# Wait indefinitely for SIGINT signal
+echo "Press Ctrl+C to exit gracefully..."
+while true; do
+    sleep 1
+done
