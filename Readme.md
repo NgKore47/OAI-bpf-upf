@@ -19,6 +19,7 @@
 
 Note: In case readers are interested in deploying debuggers/developers core network environment with more logs, please follow [this tutorial](./docker-compose/oai-cn5g-fed/docs/DEBUG_5G_CORE.md)
 
+Deployments : https://github.com/evershalik/OAI-bpf-upf/blob/main/Deploy.md
 
 -----------------------------------------------------------------------------------------
 __Note:__ If you are familiar with eBPF and XDP you can skip Section 1
